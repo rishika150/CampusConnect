@@ -37,3 +37,9 @@ logging:
   level:
     root: INFO
     com.campusconnect: INFO
+
+application:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:VGVtcG9yYXJ5RGV2ZWxvcG1lbnRTZWNyZXRLZXlGb3JDYW1wdXNDb25uZWN0MjAyNg==}
+      expiration: ${JWT_EXPIRATION:86400000}
