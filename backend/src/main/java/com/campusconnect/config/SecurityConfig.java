@@ -1,9 +1,11 @@
 package com.campusconnect.config;
 
 import com.campusconnect.security.JwtAuthenticationFilter;
+import com.campusconnect.security.RestAccessDeniedHandler;
 import com.campusconnect.security.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,6 +28,7 @@ public class SecurityConfig {
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             RestAuthenticationEntryPoint authenticationEntryPoint,
+            RestAccessDeniedHandler accessDeniedHandler,
             AuthenticationProvider authenticationProvider
     ) throws Exception {
 
@@ -40,6 +43,7 @@ public class SecurityConfig {
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
 
                 .authorizeHttpRequests(auth -> auth
@@ -52,6 +56,12 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/v3/api-docs/**"
                         )
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs/me")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs/*")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

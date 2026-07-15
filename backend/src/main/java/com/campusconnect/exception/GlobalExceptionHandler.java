@@ -30,6 +30,58 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ClubNameAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleClubNameAlreadyExists(
+            ClubNameAlreadyExistsException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(ClubMembershipAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleClubMembershipAlreadyExists(
+            ClubMembershipAlreadyExistsException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(ClubMembershipNotFoundException.class)
+    public ResponseEntity<ApiError> handleClubMembershipNotFound(
+            ClubMembershipNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(InactiveClubException.class)
+    public ResponseEntity<ApiError> handleInactiveClub(
+            InactiveClubException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleEmailAlreadyExists(
             EmailAlreadyExistsException exception,

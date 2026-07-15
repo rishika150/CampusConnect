@@ -22,9 +22,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             FROM Club c
             WHERE c.active = true
               AND (
-                    :search IS NULL
-                    OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
-                    OR LOWER(c.description) LIKE LOWER(CONCAT('%', :search, '%'))
+                    LOWER(c.name) LIKE CONCAT('%', :search, '%')
+                    OR LOWER(c.description) LIKE CONCAT('%', :search, '%')
                   )
               AND (
                     :category IS NULL
