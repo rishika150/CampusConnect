@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.Instant;
 
+import java.util.ArrayList;
+import java.util.List;
 @Entity
 @Table(
         name = "users",
@@ -71,6 +73,13 @@ public class User {
     )
     private Instant updatedAt;
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ClubMembership> clubMemberships = new ArrayList<>();
+
     protected User() {
     }
 
@@ -133,5 +142,8 @@ public class User {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+    public List<ClubMembership> getClubMemberships() {
+        return clubMemberships;
     }
 }
