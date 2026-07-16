@@ -1,119 +1,110 @@
 import {
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   LayoutDashboard,
   LogOut,
-  Settings,
-  Sparkles,
   UserRound,
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const navigation = [
+const groups = [
   {
-    section: "Overview",
+    label: "Overview",
     items: [
       {
-        label: "Dashboard",
+        name: "Dashboard",
         icon: LayoutDashboard,
         to: "/dashboard",
       },
     ],
   },
   {
-    section: "Campus",
+    label: "Campus",
     items: [
       {
-        label: "Discover Clubs",
+        name: "Discover Clubs",
         icon: Compass,
         to: "/clubs",
       },
       {
-        label: "Events",
+        name: "Events",
         icon: CalendarDays,
         to: "/events",
       },
       {
-        label: "My Clubs",
+        name: "My Clubs",
         icon: Users,
         to: "/my-clubs",
       },
     ],
   },
   {
-    section: "Account",
+    label: "Account",
     items: [
       {
-        label: "Profile",
+        name: "Profile",
         icon: UserRound,
         to: "/profile",
-      },
-      {
-        label: "Settings",
-        icon: Settings,
-        to: "/settings",
       },
     ],
   },
 ];
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside
-      className={[
-        "fixed inset-y-0 left-0 z-40 hidden flex-col overflow-hidden lg:flex",
-        "bg-[linear-gradient(180deg,#171A3A_0%,#1E2147_55%,#252A59_100%)]",
-        "text-white shadow-2xl shadow-indigo-950/20 transition-all duration-300",
-        collapsed ? "w-[88px]" : "w-[272px]",
-      ].join(" ")}
-    >
-      <div className="flex h-20 items-center border-b border-white/10 px-5">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 font-bold shadow-lg shadow-indigo-950/30">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[258px] flex-col overflow-hidden bg-[linear-gradient(180deg,#35103f_0%,#501260_52%,#2a1235_100%)] text-white shadow-[18px_0_45px_rgba(80,18,96,0.14)] lg:flex">
+      <div className="flex h-20 items-center border-b border-white/10 px-6">
+        <div className="grid h-11 w-11 place-items-center rounded-[14px] bg-[linear-gradient(135deg,#e37dac,#ffb1c4)] font-black text-[#501260] shadow-lg shadow-black/10">
           C
         </div>
 
-        {!collapsed && (
-          <div className="ml-3 min-w-0">
-            <p className="truncate text-lg font-bold">CampusConnect</p>
-            <p className="text-xs text-indigo-200">Student community</p>
-          </div>
-        )}
+        <div className="ml-3 min-w-0">
+          <p className="truncate text-[17px] font-extrabold tracking-tight">
+            CampusConnect
+          </p>
+          <p className="text-xs text-white/55">Student network</p>
+        </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-6">
-        {navigation.map((group) => (
-          <div key={group.section} className="mb-7">
-            {!collapsed && (
-              <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-300/70">
-                {group.section}
-              </p>
-            )}
+      <nav className="flex-1 overflow-y-auto px-4 py-6">
+        {groups.map((group) => (
+          <div key={group.label} className="mb-7">
+            <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
+              {group.label}
+            </p>
 
             <div className="space-y-1.5">
-              {group.items.map(({ label, icon: Icon, to }) => (
+              {group.items.map(({ name, icon: Icon, to }) => (
                 <NavLink
-                  key={label}
+                  key={name}
                   to={to}
-                  title={collapsed ? label : undefined}
                   className={({ isActive }) =>
                     [
-                      "group relative flex min-h-12 items-center rounded-2xl px-3 text-sm font-semibold transition",
+                      "group relative flex min-h-11 items-center gap-3 rounded-[13px] px-3 text-sm font-semibold transition duration-200",
                       isActive
-                        ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-lg shadow-indigo-950/25"
-                        : "text-indigo-100/75 hover:bg-white/10 hover:text-white",
-                      collapsed ? "justify-center" : "gap-3",
+                        ? "bg-[linear-gradient(90deg,#7e367a,#e37dac)] text-white shadow-[0_10px_22px_rgba(0,0,0,0.16)]"
+                        : "text-white/68 hover:bg-white/8 hover:text-white",
                     ].join(" ")
                   }
                 >
-                  <Icon size={20} className="shrink-0" />
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <span className="absolute -left-1 h-7 w-1 rounded-full bg-[#ffb1c4]" />
+                      )}
 
-                  {!collapsed && <span>{label}</span>}
+                      <Icon
+                        size={19}
+                        className="shrink-0 transition group-hover:scale-105"
+                      />
+
+                      <span>{name}</span>
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -121,59 +112,31 @@ export default function Sidebar({ collapsed, onToggle }) {
         ))}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
-        <div
-          className={[
-            "rounded-2xl bg-white/8 p-3",
-            collapsed ? "flex justify-center" : "",
-          ].join(" ")}
-        >
-          <div
-            className={[
-              "flex items-center",
-              collapsed ? "justify-center" : "gap-3",
-            ].join(" ")}
-          >
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 font-bold">
+      <div className="border-t border-white/10 p-4">
+        <div className="rounded-[16px] border border-white/10 bg-white/[0.07] p-3 backdrop-blur">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[linear-gradient(135deg,#e37dac,#ffb1c4)] font-extrabold text-[#501260]">
               {user?.fullName?.charAt(0)?.toUpperCase() ?? "S"}
             </div>
 
-            {!collapsed && (
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold">
-                  {user?.fullName ?? "Student"}
-                </p>
-                <p className="truncate text-xs text-indigo-200">
-                  {formatRole(user?.role)}
-                </p>
-              </div>
-            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold">
+                {user?.fullName ?? "Student"}
+              </p>
+              <p className="truncate text-xs text-white/50">
+                {formatRole(user?.role)}
+              </p>
+            </div>
 
-            {!collapsed && (
-              <button
-                onClick={logout}
-                className="rounded-xl p-2 text-indigo-200 transition hover:bg-rose-500/20 hover:text-rose-200"
-                aria-label="Sign out"
-              >
-                <LogOut size={18} />
-              </button>
-            )}
+            <button
+              onClick={logout}
+              className="grid h-9 w-9 place-items-center rounded-[10px] text-white/55 transition hover:bg-[#ffb1c4]/15 hover:text-[#ffb1c4]"
+              aria-label="Sign out"
+            >
+              <LogOut size={17} />
+            </button>
           </div>
         </div>
-
-        <button
-          onClick={onToggle}
-          className="mt-3 flex w-full items-center justify-center rounded-xl py-2 text-indigo-200 transition hover:bg-white/10 hover:text-white"
-        >
-          {collapsed ? (
-            <ChevronRight size={19} />
-          ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <ChevronLeft size={17} />
-              Collapse sidebar
-            </div>
-          )}
-        </button>
       </div>
     </aside>
   );

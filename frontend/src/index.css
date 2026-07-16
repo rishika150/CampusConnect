@@ -5,32 +5,22 @@
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 
-  color: #181b2e;
-  background: #f3f5fb;
+  --primary-dark: #501260;
+  --primary: #7e367a;
+  --secondary: #b05994;
+  --accent: #e37dac;
+  --accent-soft: #ffb1c4;
 
+  --background: #f8f3fa;
+  --surface: #ffffff;
+  --text: #21152a;
+  --muted: #73687b;
+  --border: #eaddea;
+
+  color: var(--text);
+  background: var(--background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-
-  --background: #f3f5fb;
-  --background-soft: #eef1fa;
-  --background-accent: #e9edff;
-
-  --sidebar: #171a3a;
-  --sidebar-secondary: #20244d;
-
-  --primary: #5b5fef;
-  --primary-hover: #4b4fd8;
-  --primary-soft: #e8e9ff;
-
-  --violet: #8b5cf6;
-  --sky: #38bdf8;
-  --coral: #f97373;
-  --success: #16a77a;
-  --warning: #e89a2d;
-
-  --text-primary: #181b2e;
-  --text-secondary: #5c6279;
-  --text-muted: #9298aa;
 }
 
 * {
@@ -45,18 +35,19 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+
   background:
     radial-gradient(
-      circle at 88% 8%,
-      rgba(139, 92, 246, 0.08),
-      transparent 24%
+      circle at 12% 8%,
+      rgba(176, 89, 148, 0.12),
+      transparent 28%
     ),
     radial-gradient(
-      circle at 10% 90%,
-      rgba(56, 189, 248, 0.07),
+      circle at 88% 12%,
+      rgba(255, 177, 196, 0.18),
       transparent 25%
     ),
-    #f3f5fb;
+    linear-gradient(135deg, #f8f3fa 0%, #fdf8fc 52%, #f5eef8 100%);
 }
 
 button,
@@ -64,11 +55,6 @@ input,
 textarea,
 select {
   font: inherit;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -85,13 +71,71 @@ a {
 }
 
 ::selection {
-  background: #c7d2fe;
-  color: #312e81;
+  color: white;
+  background: var(--secondary);
+}
+
+.app-surface {
+  border: 1px solid rgba(176, 89, 148, 0.14);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow:
+    0 10px 30px rgba(80, 18, 96, 0.06),
+    0 2px 8px rgba(80, 18, 96, 0.035);
+  backdrop-filter: blur(18px);
+}
+
+.primary-button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 13px;
+  padding: 0 20px;
+  color: white;
+  background: linear-gradient(135deg, #501260, #7e367a);
+  font-weight: 700;
+  box-shadow: 0 12px 25px rgba(80, 18, 96, 0.2);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(80, 18, 96, 0.27);
+}
+
+.secondary-button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 13px;
+  padding: 0 20px;
+  color: #501260;
+  background: linear-gradient(135deg, #e37dac, #ffb1c4);
+  font-weight: 700;
+  transition: transform 180ms ease;
+}
+
+.secondary-button:hover {
+  transform: translateY(-2px);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 ::-webkit-scrollbar {
   width: 9px;
-  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -101,12 +145,7 @@ a {
 ::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: rgba(100, 108, 140, 0.28);
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.4);
+  background: rgba(126, 54, 122, 0.28);
   background-clip: padding-box;
 }
 
@@ -119,36 +158,4 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-body::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  content: "";
-  opacity: 0.18;
-  background-image:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(91, 95, 239, 0.08) 0,
-      transparent 24%
-    ),
-    radial-gradient(
-      circle at 82% 12%,
-      rgba(139, 92, 246, 0.08) 0,
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 75% 85%,
-      rgba(56, 189, 248, 0.07) 0,
-      transparent 24%
-    );
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }

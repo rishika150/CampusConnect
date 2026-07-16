@@ -10,6 +10,11 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Clubs from "./pages/Clubs";
+import Events from "./pages/Events";
+import MyClubs from "./pages/MyClubs";
+import Profile from "./pages/Profile";
+
 
 function ComingSoon({ title }) {
   return (
@@ -113,40 +118,20 @@ export default function App() {
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
 
-              <Route
-                path="/clubs"
-                element={<ComingSoon title="Discover Clubs" />}
-              />
+              <Route path="/clubs" element={<Clubs />} />
 
-              <Route
-                path="/clubs/:clubId"
-                element={<ComingSoon title="Club Details" />}
-              />
+              <Route path="/clubs" element={<Clubs />} />
 
-              <Route
-                path="/my-clubs"
-                element={<ComingSoon title="My Clubs" />}
-              />
+              <Route path="/my-clubs" element={<MyClubs />} />
 
-              <Route
-                path="/events"
-                element={<ComingSoon title="Campus Events" />}
-              />
+              <Route path="/events" element={<Events />} />
 
               <Route
                 path="/events/:eventId"
                 element={<ComingSoon title="Event Details" />}
               />
 
-              <Route
-                path="/profile"
-                element={<ComingSoon title="Your Profile" />}
-              />
-
-              <Route
-                path="/settings"
-                element={<ComingSoon title="Settings" />}
-              />
+              <Route path="/profile" element={<Profile />} />ß
             </Route>
           </Route>
 
