@@ -1,5 +1,9 @@
 package com.campusconnect.config;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
 import com.campusconnect.security.JwtAuthenticationFilter;
 import com.campusconnect.security.RestAccessDeniedHandler;
 import com.campusconnect.security.RestAuthenticationEntryPoint;
@@ -23,6 +27,37 @@ import org.springframework.http.HttpMethod;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type"
+        ));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -34,8 +69,8 @@ public class SecurityConfig {
     ) throws Exception {
 
         return http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
-
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
