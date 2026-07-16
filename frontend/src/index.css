@@ -1,7 +1,154 @@
 @import "tailwindcss";
 
+:root {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  color: #181b2e;
+  background: #f3f5fb;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --background: #f3f5fb;
+  --background-soft: #eef1fa;
+  --background-accent: #e9edff;
+
+  --sidebar: #171a3a;
+  --sidebar-secondary: #20244d;
+
+  --primary: #5b5fef;
+  --primary-hover: #4b4fd8;
+  --primary-soft: #e8e9ff;
+
+  --violet: #8b5cf6;
+  --sky: #38bdf8;
+  --coral: #f97373;
+  --success: #16a77a;
+  --warning: #e89a2d;
+
+  --text-primary: #181b2e;
+  --text-secondary: #5c6279;
+  --text-muted: #9298aa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
-  background: #f8fafc;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 88% 8%,
+      rgba(139, 92, 246, 0.08),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(56, 189, 248, 0.07),
+      transparent 25%
+    ),
+    #f3f5fb;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: #c7d2fe;
+  color: #312e81;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(100, 108, 140, 0.28);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.4);
+  background-clip: padding-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: 0.18;
+  background-image:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(91, 95, 239, 0.08) 0,
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 82% 12%,
+      rgba(139, 92, 246, 0.08) 0,
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 75% 85%,
+      rgba(56, 189, 248, 0.07) 0,
+      transparent 24%
+    );
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
