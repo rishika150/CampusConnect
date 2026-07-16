@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableMethodSecurity
@@ -57,12 +58,22 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         )
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs/me")
-                        .authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/clubs",
+                                "/api/v1/clubs/*"
+                        )
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/clubs/*")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/events",
+                                "/api/v1/events/**",
+                                "/api/v1/clubs/*/events"
+                        )
                         .permitAll()
+
                         .anyRequest()
                         .authenticated()
                 )

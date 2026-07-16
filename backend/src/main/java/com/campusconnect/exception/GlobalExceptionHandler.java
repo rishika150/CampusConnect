@@ -17,6 +17,32 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ApiError> handleEventNotFound(
+            EventNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(InvalidEventTimeException.class)
+    public ResponseEntity<ApiError> handleInvalidEventTime(
+            InvalidEventTimeException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(
             ResourceNotFoundException exception,
