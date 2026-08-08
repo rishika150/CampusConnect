@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:campusconnect;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+application:
+  security:
+    jwt:
+      secret: VGVzdFNlY3JldEtleUZvckNhbXB1c0Nvbm5lY3RUZXN0aW5nMjAyNg==
+      expiration: 3600000

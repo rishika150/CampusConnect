@@ -1,8 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CalendarDays, CheckCircle2, X } from "lucide-react";
 import EventHero from "../components/events/EventHero";
 import EventTicket from "../components/events/EventTicket";
-import { fetchEvents } from "../services/eventService";
+import {
+  cancelEventRegistration,
+  fetchEvents,
+  fetchMyEventRegistrations,
+  registerForEvent,
+} from "../services/eventService";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -10,30 +15,37 @@ export default function Events() {
   const [category, setCategory] = useState("ALL");
   const [status, setStatus] = useState("ALL");
   const [loading, setLoading] = useState(true);
+  const [actionEventId, setActionEventId] = useState(null);
+  const [registeredEventIds, setRegisteredEventIds] = useState(
+    new Set(),
+  );
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      loadEvents();
-    }, 250);
-
-    return () => clearTimeout(timer);
-  }, [search, category, status]);
-
-  async function loadEvents() {
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetchEvents({
-        page: 0,
-        size: 30,
-        search: search.trim(),
-        category: category === "ALL" ? undefined : category,
-        status: status === "ALL" ? undefined : status,
-      });
+      const [response, registrations] = await Promise.all([
+        fetchEvents({
+          page: 0,
+          size: 30,
+          search: search.trim(),
+          category: category === "ALL" ? undefined : category,
+          status: status === "ALL" ? undefined : status,
+        }),
+        fetchMyEventRegistrations(),
+      ]);
 
       setEvents(response?.content ?? []);
+      setRegisteredEventIds(
+        new Set(
+          (registrations ?? []).map(
+            (registration) => registration.eventId,
+          ),
+        ),
+      );
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ??
@@ -41,6 +53,41 @@ export default function Events() {
       );
     } finally {
       setLoading(false);
+    }
+  }, [search, category, status]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadEvents();
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [loadEvents]);
+
+  async function handleRegistration(event) {
+    const isRegistered = registeredEventIds.has(event.id);
+
+    setActionEventId(event.id);
+    setError("");
+    setSuccess("");
+
+    try {
+      if (isRegistered) {
+        await cancelEventRegistration(event.id);
+        setSuccess(`Registration cancelled for ${event.title}.`);
+      } else {
+        await registerForEvent(event.id);
+        setSuccess(`You are registered for ${event.title}.`);
+      }
+
+      await loadEvents();
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ??
+          "Unable to update your registration right now.",
+      );
+    } finally {
+      setActionEventId(null);
     }
   }
 
@@ -72,6 +119,13 @@ export default function Events() {
         </div>
       )}
 
+      {success && (
+        <div className="mt-5 flex items-center gap-3 rounded-[16px] border border-[#b9dfcc] bg-[#effbf4] px-5 py-4 text-sm font-semibold text-[#246c4a]">
+          <CheckCircle2 size={18} />
+          {success}
+        </div>
+      )}
+
       <section className="mt-7 space-y-6">
         {loading ? (
           Array.from({ length: 4 }).map((_, index) => (
@@ -84,6 +138,11 @@ export default function Events() {
               event={event}
               index={index}
               featured={index === 0}
+              registered={registeredEventIds.has(event.id)}
+              actionLoading={actionEventId === event.id}
+              onRegistrationChange={() =>
+                handleRegistration(event)
+              }
             />
           ))
         ) : (

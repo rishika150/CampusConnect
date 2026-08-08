@@ -34,3 +34,19 @@ export const fetchUpcomingEvents = async ({
 
   return response.data.data;
 };
+
+export const fetchMyEventRegistrations = async () => {
+  const response = await api.get("/users/me/event-registrations");
+  return response.data.data;
+};
+
+export const registerForEvent = async (eventId) => {
+  const response = await api.post(
+    `/events/${eventId}/registrations`,
+  );
+  return response.data.data;
+};
+
+export const cancelEventRegistration = async (eventId) => {
+  await api.delete(`/events/${eventId}/registrations`);
+};

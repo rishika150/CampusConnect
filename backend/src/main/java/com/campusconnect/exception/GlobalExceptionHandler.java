@@ -17,6 +17,58 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(EventRegistrationAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleDuplicateEventRegistration(
+            EventRegistrationAlreadyExistsException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(EventRegistrationNotFoundException.class)
+    public ResponseEntity<ApiError> handleEventRegistrationNotFound(
+            EventRegistrationNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(EventRegistrationClosedException.class)
+    public ResponseEntity<ApiError> handleEventRegistrationClosed(
+            EventRegistrationClosedException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @ExceptionHandler(EventCapacityExceededException.class)
+    public ResponseEntity<ApiError> handleEventCapacityExceeded(
+            EventCapacityExceededException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ApiError> handleEventNotFound(
             EventNotFoundException exception,

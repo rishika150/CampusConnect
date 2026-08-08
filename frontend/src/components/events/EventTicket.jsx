@@ -1,13 +1,14 @@
 import {
-  ArrowRight,
   Building2,
   CalendarDays,
+  Check,
   Clock3,
+  LoaderCircle,
   MapPin,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 
 const categoryThemes = {
   WORKSHOP: {
@@ -44,6 +45,9 @@ export default function EventTicket({
   event,
   index = 0,
   featured = false,
+  registered = false,
+  actionLoading = false,
+  onRegistrationChange,
 }) {
   const theme =
     categoryThemes[event.category] ?? categoryThemes.OTHER;
@@ -60,6 +64,15 @@ export default function EventTicket({
     event.capacity > 0 &&
     availableSeats > 0 &&
     availableSeats <= Math.max(5, event.capacity * 0.15);
+
+  const registrationDeadlinePassed = event.registrationDeadline
+    ? new Date(event.registrationDeadline) <= new Date()
+    : false;
+  const registrationUnavailable =
+    !registered &&
+    (event.status !== "UPCOMING" ||
+      availableSeats <= 0 ||
+      registrationDeadlinePassed);
 
   return (
     <motion.article
@@ -132,6 +145,13 @@ export default function EventTicket({
                 Featured
               </span>
             )}
+
+            {registered && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#e6f7ee] px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#24704c]">
+                <Check size={12} />
+                Registered
+              </span>
+            )}
           </div>
 
           <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-[#28162f] transition group-hover:text-[#7e367a]">
@@ -178,13 +198,34 @@ export default function EventTicket({
         </div>
 
         <div className="flex items-center border-t border-[#eaddea] p-5 lg:border-l lg:border-t-0">
-          <Link
-            to={`/events/${event.id}`}
-            className="flex h-12 min-w-36 items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#501260,#7e367a,#b05994)] px-5 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(80,18,96,0.2)] transition hover:-translate-y-0.5"
+          <button
+            type="button"
+            onClick={onRegistrationChange}
+            disabled={actionLoading || registrationUnavailable}
+            className={[
+              "flex h-12 min-w-40 items-center justify-center gap-2 rounded-[14px] px-5 text-sm font-extrabold transition",
+              registered
+                ? "border border-[#d8b7d4] bg-white text-[#7e367a] hover:bg-[#f9edf4]"
+                : "bg-[linear-gradient(135deg,#501260,#7e367a,#b05994)] text-white shadow-[0_12px_28px_rgba(80,18,96,0.2)] hover:-translate-y-0.5",
+              registrationUnavailable
+                ? "cursor-not-allowed opacity-55"
+                : "",
+            ].join(" ")}
           >
-            View details
-            <ArrowRight size={17} />
-          </Link>
+            {actionLoading ? (
+              <LoaderCircle className="animate-spin" size={17} />
+            ) : registered ? (
+              <Check size={17} />
+            ) : (
+              <UserPlus size={17} />
+            )}
+
+            {registered
+              ? "Cancel registration"
+              : registrationUnavailable
+                ? "Registration closed"
+                : "Register now"}
+          </button>
         </div>
       </div>
     </motion.article>

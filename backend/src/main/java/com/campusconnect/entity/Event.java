@@ -267,6 +267,20 @@ public class Event {
         this.registeredCount = registeredCount;
     }
 
+    public void registerAttendee() {
+        if (registeredCount >= capacity) {
+            throw new IllegalStateException("Event capacity has been reached");
+        }
+        registeredCount++;
+    }
+
+    public void unregisterAttendee() {
+        if (registeredCount <= 0) {
+            throw new IllegalStateException("Registered count cannot be negative");
+        }
+        registeredCount--;
+    }
+
     public String getBannerUrl() {
         return bannerUrl;
     }
