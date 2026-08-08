@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { fetchMyClubs } from "../services/clubService";
+import { fetchMyClubs } from "../services/ClubService";
 import { fetchUpcomingEvents } from "../services/eventService";
 
 export default function Profile() {

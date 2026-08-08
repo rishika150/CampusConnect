@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import {
   fetchClubs,
   fetchMyClubs,
-} from "../services/clubService";
+} from "../services/ClubService";
 import { fetchUpcomingEvents } from "../services/eventService";
 
 export default function Dashboard() {

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { fetchMyClubs, leaveClub } from "../services/clubService";
+import { fetchMyClubs, leaveClub } from "../services/ClubService";
 
 const themes = {
   TECHNOLOGY: "from-[#501260] via-[#7e367a] to-[#b05994]",

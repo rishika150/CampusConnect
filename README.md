@@ -9,7 +9,7 @@ A modern full-stack campus community platform that enables students to discover 
 - JWT-based Authentication & Authorization
 - Secure Protected Routes
 - Club Discovery & Membership Management
-- Event Discovery with Search & Filters
+- Event Discovery, Registration & Capacity Control
 - Personalized Dashboard
 - Student Profile
 - Responsive Modern UI
@@ -112,9 +112,19 @@ A modern full-stack campus community platform that enables students to discover 
 - Browse Upcoming Events
 - Search Events
 - Category Filters
+- Register for Events
+- Cancel Registrations Before an Event Starts
+- View Personal Event Registrations
+- Capacity and Registration Deadline Enforcement
+- Duplicate Registration Prevention
 - Ticket-style Event Cards
 - Event Information
 - Empty & Loading States
+
+Registration capacity is enforced inside a database transaction. The event row
+is locked while a registration is created or cancelled, preventing concurrent
+requests from overbooking the same event. A database-level unique constraint
+also guarantees that a student cannot register twice.
 
 ---
 
@@ -257,13 +267,13 @@ VITE_API_BASE_URL=http://localhost:8080/api/v1
 - Clubs
 - Club Memberships
 - Events
+- Event Registrations
 - User Profile
 
 ---
 
 # Future Enhancements
 
-- Event Registration
 - Club Admin Portal
 - Announcement System
 - Notifications
