@@ -304,3 +304,8 @@ University admins can publish an events spreadsheet as CSV and submit the **dire
 The CSV now requires `externalId` plus `clubId,title,description,venue,startTime,endTime,registrationDeadline,capacity,category`. Optional: `bannerUrl`. Use a permanent `externalId` per event and a consistent **source name** per spreadsheet, for example `university-events`. Repeated imports skip unchanged events and update changed event details without creating a second row. The same behavior is available for uploaded CSVs with a source name.
 
 Sync endpoint: `POST /api/v1/admin/import/events/google-sheet`, JSON: `{"url":"https://docs.google.com/spreadsheets/d/.../export?format=csv","source":"university-events"}`. Only university admins can call it. Sync runs **on demand**; there is no background schedule yet. Changes to event dates must satisfy normal backend validation, and cancelled events are not resurrected. This path is intended for reviewed public data, not sensitive student information.
+
+
+### Optional scheduled Google Sheets synchronization
+
+The backend can refresh a public sheet **every 30 minutes**, but scheduling is **disabled by default**. Configure `SHEET_SYNC_ENABLED=true`, `SHEET_CSV_URL` (direct publicly readable CSV export URL), and a stable `SHEET_SOURCE` value. The server waits 30 seconds after startup before its first attempt. `SHEET_SYNC_INTERVAL_MS` controls the delay after a completed run (default `1800000`). Errors are logged and do not crash the application. This in-process scheduler runs only while the backend is up; with multiple backend instances, each instance may independently synchronize, so use one scheduled instance or an external centralized scheduler in production.
