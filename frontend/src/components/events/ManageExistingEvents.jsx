@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchEvents } from "../services/eventService";
-import { updateEvent, removeEvent } from "../services/managementService";
+import { fetchEvents } from "../../services/eventService";
+import { updateEvent, removeEvent } from "../../services/managementService";
 
 function localDate(value) {
   if (!value) return "";
