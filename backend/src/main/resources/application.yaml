@@ -43,3 +43,11 @@ application:
     jwt:
       secret: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION:86400000}
+
+campusconnect:
+  sheets:
+    enabled: ${SHEET_SYNC_ENABLED:false}
+    url: ${SHEET_CSV_URL:}
+    source: ${SHEET_SOURCE:}
+    interval-ms: ${SHEET_SYNC_INTERVAL_MS:1800000}
+    initial-delay-ms: ${SHEET_SYNC_INITIAL_DELAY_MS:30000}
