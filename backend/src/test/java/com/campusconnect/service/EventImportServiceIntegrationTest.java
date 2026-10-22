@@ -44,8 +44,8 @@ class EventImportServiceIntegrationTest {
         assertEquals(45, stored.getCapacity());
 
         String withBanner = revised.replace(
-                "capacity,category\\n", "capacity,category,bannerUrl\\n"
-        ).replace(",45,WORKSHOP\\n", ",45,WORKSHOP,https://example.org/banner.png\\n");
+                "capacity,category\n", "capacity,category,bannerUrl\n"
+        ).replace(",45,WORKSHOP\n", ",45,WORKSHOP,https://example.org/banner.png\n");
         var fourth = imports.process(new StringReader(withBanner), source);
         assertEquals(1, fourth.updated(), fourth.toString());
         assertEquals(0, fourth.failed(), fourth.toString());
