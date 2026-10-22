@@ -309,3 +309,10 @@ Sync endpoint: `POST /api/v1/admin/import/events/google-sheet`, JSON: `{"url":"h
 ### Optional scheduled Google Sheets synchronization
 
 The backend can refresh a public sheet **every 30 minutes**, but scheduling is **disabled by default**. Configure `SHEET_SYNC_ENABLED=true`, `SHEET_CSV_URL` (direct publicly readable CSV export URL), and a stable `SHEET_SOURCE` value. The server waits 30 seconds after startup before its first attempt. `SHEET_SYNC_INTERVAL_MS` controls the delay after a completed run (default `1800000`). Errors are logged and do not crash the application. This in-process scheduler runs only while the backend is up; with multiple backend instances, each instance may independently synchronize, so use one scheduled instance or an external centralized scheduler in production.
+
+
+## Database migrations (Flyway)
+
+A clean PostgreSQL database now uses Flyway `V1__initial_schema.sql` to create the tables, keys and indexes. Hibernate uses `ddl-auto=validate`, so application startup checks the schema without silently modifying it. CI tests the baseline on a fresh PostgreSQL service.
+
+**Important: databases created by the earlier `ddl-auto=update` configuration are not automatically migrated.** Back up any existing data before upgrading. Flyway's default `baseline-on-migrate=false` intentionally stops startup on nonempty, unversioned schemas rather than risking data loss. For a pre-existing installation, compare its actual schema against V1, reconcile any differences, and establish a Flyway baseline only after review. Do not delete an existing database to get the app running.
