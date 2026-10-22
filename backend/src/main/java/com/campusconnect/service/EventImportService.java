@@ -76,8 +76,12 @@ public class EventImportService {
         return new ImportResult(imported, updated, skipped, errors.size(), errors);
     }
 
+    private static String normalizeBanner(String value) {
+        return value == null || value.trim().isEmpty() ? null : value.trim();
+    }
+
     private int upsert(String sourceKey, EventRequest request) {
-        // This method is also invoked through the transactional proxy by CSV import controller.
+        // The caller wraps each row in a TransactionTemplate for independent commits.
         var existing = repository.findBySourceKey(sourceKey);
         if (existing.isPresent()) {
             Event event = existing.get();
@@ -88,7 +92,8 @@ public class EventImportService {
                     && event.getVenue().equals(request.venue()) && event.getStartTime().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).equals(request.startTime().truncatedTo(java.time.temporal.ChronoUnit.MILLIS))
                     && event.getEndTime().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).equals(request.endTime().truncatedTo(java.time.temporal.ChronoUnit.MILLIS))
                     && event.getRegistrationDeadline().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).equals(request.registrationDeadline().truncatedTo(java.time.temporal.ChronoUnit.MILLIS))
-                    && event.getCapacity() == request.capacity() && event.getCategory() == request.category())
+                    && event.getCapacity() == request.capacity() && event.getCategory() == request.category()
+                    && java.util.Objects.equals(event.getBannerUrl(), normalizeBanner(request.bannerUrl())))
                 return 0;
             eventService.updateEvent(event.getId(), request);
             return 2;
