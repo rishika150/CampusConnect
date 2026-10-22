@@ -187,4 +187,6 @@ jobs:
           exit 1
       - name: Clean up stack
         if: always()
-        run: docker compose -f compose.prod.yml down -v
+        run: |
+          export JWT_SECRET=ci-cleanup-only-placeholder
+          docker compose -f compose.prod.yml down -v --remove-orphans
