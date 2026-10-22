@@ -34,6 +34,11 @@ const groups = [
         to: "/events",
       },
       {
+        name: "My Events",
+        icon: CalendarDays,
+        to: "/my-events",
+      },
+      {
         name: "My Clubs",
         icon: Users,
         to: "/my-clubs",
