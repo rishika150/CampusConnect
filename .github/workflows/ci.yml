@@ -75,3 +75,69 @@ jobs:
       - run: npx playwright test
         env:
           CI: 'true'
+
+  browser-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: campusconnect_e2e
+          POSTGRES_USER: campusconnect
+          POSTGRES_PASSWORD: campusconnect_e2e_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U campusconnect -d campusconnect_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/campusconnect_e2e
+      DB_USERNAME: campusconnect
+      DB_PASSWORD: campusconnect_e2e_password
+      ADMIN_BOOTSTRAP_EMAIL: ci-admin@example.org
+      ADMIN_BOOTSTRAP_PASSWORD: CI-Test-Admin-Password-2026
+      VITE_API_BASE_URL: http://127.0.0.1:8080/api/v1
+      E2E_REAL_BACKEND: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start live backend
+        run: |
+          echo "JWT_SECRET=$(openssl rand -base64 48)" >> "$GITHUB_ENV"
+          chmod +x backend/mvnw
+      - run: |
+          cd backend
+          ./mvnw -B -DskipTests spring-boot:run > /tmp/campusconnect-backend.log 2>&1 &
+          echo $! > /tmp/campusconnect-backend.pid
+      - name: Wait for API readiness
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8080/api/v1/clubs > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          tail -100 /tmp/campusconnect-backend.log
+          exit 1
+      - run: npm ci
+        working-directory: frontend
+      - run: npm install --no-save --package-lock=false @playwright/test
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Real backend Chromium journeys
+        run: npx playwright test e2e/live-backend.spec.js
+        working-directory: frontend
+      - name: Show backend failures
+        if: failure()
+        run: tail -180 /tmp/campusconnect-backend.log
