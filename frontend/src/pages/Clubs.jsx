@@ -80,36 +80,43 @@ export default function Clubs() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
-
-  async function loadClubs() {
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetchClubs({
-        size: 30,
-        search: search.trim(),
-        category: category === "ALL" ? undefined : category,
-      });
-
-      setClubs(response?.content ?? []);
-    } catch (requestError) {
-      setError(
-        requestError.response?.data?.message ??
-          "Unable to load clubs right now.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalClubs, setTotalClubs] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadClubs();
+    let active = true;
+    const timer = setTimeout(async () => {
+      if (!active) return;
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetchClubs({
+          page, size: 12, search: search.trim(),
+          category: category === "ALL" ? undefined : category,
+        });
+        if (!active) return;
+        setClubs(response?.content ?? []);
+        setTotalPages(response?.totalPages ?? 0);
+        setTotalClubs(response?.totalElements ?? 0);
+      } catch (requestError) {
+        if (!active) return;
+        setClubs([]);
+        setTotalPages(0);
+        setTotalClubs(0);
+        setError(requestError.response?.data?.message ?? "Unable to load clubs right now.");
+      } finally {
+        if (active) setLoading(false);
+      }
     }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [search, category, page, reloadKey]);
 
-    return () => clearTimeout(timer);
-  }, [search, category]);
+  function updateFilters(setter, value) {
+    setPage(0);
+    setter(value);
+  }
 
   const joinedCount = useMemo(
     () => clubs.filter((club) => club.joinedByCurrentUser).length,
@@ -122,7 +129,7 @@ export default function Clubs() {
 
     try {
       await joinClub(clubId);
-      await loadClubs();
+      setReloadKey(key => key + 1);
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ??
@@ -139,7 +146,7 @@ export default function Clubs() {
 
     try {
       await leaveClub(clubId);
-      await loadClubs();
+      setReloadKey(key => key + 1);
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ??
@@ -172,20 +179,20 @@ export default function Clubs() {
               and become part of communities across campus.
             </p>
             <p className="mt-3 text-sm font-semibold text-[#b05994]">
-  {clubs.length} active{" "}
-  {clubs.length === 1 ? "community" : "communities"} available
+  {totalClubs} active{" "}
+  {totalClubs === 1 ? "community" : "communities"} available
 </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <SummaryCard
               label="Available"
-              value={clubs.length}
+              value={totalClubs}
               icon={Compass}
             />
 
             <SummaryCard
-              label="Joined"
+              label="Joined on page"
               value={joinedCount}
               icon={Users}
             />
@@ -203,7 +210,7 @@ export default function Clubs() {
 
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => updateFilters(setSearch, event.target.value)}
               placeholder="Search clubs by name or description"
               className="h-12 w-full rounded-[15px] border border-[#eaddea] bg-[#fffafd] pl-12 pr-4 text-sm text-[#28162f] outline-none transition placeholder:text-[#a397a8] focus:border-[#b05994] focus:ring-4 focus:ring-[#e37dac]/15"
             />
@@ -217,7 +224,7 @@ export default function Clubs() {
 
             <select
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => updateFilters(setCategory, event.target.value)}
               className="h-12 w-full appearance-none rounded-[15px] border border-[#eaddea] bg-[#fffafd] pl-11 pr-4 text-sm font-bold text-[#501260] outline-none focus:border-[#b05994] focus:ring-4 focus:ring-[#e37dac]/15"
             >
               {categories.map((item) => (
@@ -246,7 +253,7 @@ export default function Clubs() {
               <ClubSkeleton key={index} />
             ))}
           </div>
-        ) : clubs.length ? (
+        ) : error ? null : clubs.length ? (
           <div className="grid gap-6 lg:grid-cols-2 2xl:grid-cols-3">
             {clubs.map((club, index) => (
               <ClubPoster
@@ -263,6 +270,13 @@ export default function Clubs() {
           <EmptyClubs />
         )}
       </section>
+      {!loading && !error && totalPages > 1 && (
+        <nav aria-label="Club pages" className="mt-8 flex items-center justify-center gap-4">
+          <button type="button" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-xl border px-4 py-2 disabled:opacity-40">Previous</button>
+          <span>Page {page + 1} of {totalPages}</span>
+          <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage(p => p + 1)} className="rounded-xl border px-4 py-2 disabled:opacity-40">Next</button>
+        </nav>
+      )}
     </div>
   );
 }
