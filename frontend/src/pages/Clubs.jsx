@@ -14,7 +14,7 @@ import {
   fetchClubs,
   joinClub,
   leaveClub,
-} from "../services/clubService";
+} from "../services/ClubService";
 
 const categories = [
   "ALL",
