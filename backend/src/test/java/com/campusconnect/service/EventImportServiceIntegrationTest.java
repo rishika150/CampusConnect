@@ -32,7 +32,7 @@ class EventImportServiceIntegrationTest {
 
         var first = imports.process(new StringReader(csv), source);
         var second = imports.process(new StringReader(csv), source);
-        assertEquals(1, first.imported());
+        assertEquals(1, first.imported(), first.toString());
         assertEquals(0, first.failed());
         assertEquals(1, second.skipped());
         assertEquals(0, second.failed());
