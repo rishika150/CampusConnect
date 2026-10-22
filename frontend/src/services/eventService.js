@@ -34,7 +34,7 @@ export const fetchUpcomingEvents = async ({
 
   return response.data.data;
 };
-export const fetchEventById = async (eventId) => {
-  const response = await api.get(`/events/${encodeURIComponent(eventId)}`);
+export const fetchEventById = async (eventId, signal) => {
+  const response = await api.get(`/events/${encodeURIComponent(eventId)}`, { signal });
   return response.data.data;
 };
