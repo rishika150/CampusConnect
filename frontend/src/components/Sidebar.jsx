@@ -115,6 +115,7 @@ export default function Sidebar() {
             </div>
           </div>
         ))}
+        <NavLink to="/manage-events" className={({isActive}) => ["mx-3 mt-2 block rounded-xl px-3 py-3 text-sm font-bold",isActive ? "bg-[#7e367a] text-white" : "text-white/80 hover:bg-white/10"].join(" ")}>Manage events</NavLink>
       </nav>
 
       <div className="border-t border-white/10 p-4">
