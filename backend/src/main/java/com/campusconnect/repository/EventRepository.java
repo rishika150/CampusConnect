@@ -17,6 +17,8 @@ public interface EventRepository
 
     Optional<Event> findByIdAndActiveTrue(Long id);
 
+    Optional<Event> findBySourceKey(String sourceKey);
+
     boolean existsByClubIdAndTitle(Long clubId, String title);
 
     boolean existsByClubIdAndTitleIgnoreCaseAndStartTime(Long clubId, String title, Instant startTime);
