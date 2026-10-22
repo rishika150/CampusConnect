@@ -103,3 +103,56 @@ test.describe("real backend user journeys", () => {
     expect((await response.json()).data.content.some(e => e.title === `Browser Event ${suffix}`)).toBeTruthy();
   });
 });
+
+
+test("coordinator can publish only for the assigned club", async ({ request }) => {
+  test.skip(!process.env.E2E_REAL_BACKEND, "Requires real API and PostgreSQL");
+  const suffix = Math.random().toString(36).slice(2, 10);
+  const adminLogin = await request.post(`${backend}/auth/login`, {
+    data: { email: adminEmail, password: adminPassword }
+  });
+  expect(adminLogin.ok()).toBeTruthy();
+  const adminHeaders = { Authorization: `Bearer ${(await adminLogin.json()).data.accessToken}` };
+
+  async function createClub(name) {
+    const res = await request.post(`${backend}/clubs`, {
+      headers: adminHeaders,
+      data: { name, description: "A campus society created for coordinator authorization testing.",
+        category: "TECHNOLOGY", contactEmail: "test@example.org" }
+    });
+    expect(res.ok(), await res.text()).toBeTruthy();
+    return (await res.json()).data.id;
+  }
+  const allowedClub = await createClub(`Coordinator Club ${suffix}`);
+  const otherClub = await createClub(`Different Club ${suffix}`);
+  const email = `coordinator-${suffix}@example.org`;
+  const registration = await request.post(`${backend}/auth/register`, {
+    data: { fullName: "Integration Coordinator", email, password: "TestPassword123" }
+  });
+  expect(registration.ok(), await registration.text()).toBeTruthy();
+  const studentData = (await registration.json()).data;
+  const studentHeaders = { Authorization: `Bearer ${studentData.accessToken}` };
+  const join = await request.post(`${backend}/clubs/${allowedClub}/join`, { headers: studentHeaders });
+  expect(join.ok(), await join.text()).toBeTruthy();
+  const assign = await request.put(`${backend}/clubs/${allowedClub}/members/${studentData.user.id}/role`, {
+    headers: adminHeaders, data: { role: "COORDINATOR" }
+  });
+  expect(assign.ok(), await assign.text()).toBeTruthy();
+
+  const start = Date.now() + 12 * 86400000;
+  const payload = {
+    clubId: allowedClub, title: `Coordinator Workshop ${suffix}`,
+    description: "A real integration event testing per-club coordinator access.",
+    venue: "Test Lab", startTime: new Date(start).toISOString(),
+    endTime: new Date(start + 7200000).toISOString(),
+    registrationDeadline: new Date(start - 86400000).toISOString(),
+    capacity: 25, category: "WORKSHOP"
+  };
+  const ownEvent = await request.post(`${backend}/events`, { headers: studentHeaders, data: payload });
+  expect(ownEvent.status(), await ownEvent.text()).toBe(201);
+
+  const otherEvent = await request.post(`${backend}/events`, {
+    headers: studentHeaders, data: { ...payload, clubId: otherClub, title: `Unauthorized ${suffix}` }
+  });
+  expect(otherEvent.status(), await otherEvent.text()).toBe(403);
+});
