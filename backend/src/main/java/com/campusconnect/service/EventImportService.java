@@ -85,9 +85,9 @@ public class EventImportService {
             if (!event.getClub().getId().equals(request.clubId()))
                 throw new IllegalArgumentException("Imported event cannot change its club");
             if (event.getTitle().equals(request.title()) && event.getDescription().equals(request.description())
-                    && event.getVenue().equals(request.venue()) && event.getStartTime().equals(request.startTime())
-                    && event.getEndTime().equals(request.endTime())
-                    && event.getRegistrationDeadline().equals(request.registrationDeadline())
+                    && event.getVenue().equals(request.venue()) && event.getStartTime().truncatedTo(java.time.temporal.ChronoUnit.MICROS).equals(request.startTime().truncatedTo(java.time.temporal.ChronoUnit.MICROS))
+                    && event.getEndTime().truncatedTo(java.time.temporal.ChronoUnit.MICROS).equals(request.endTime().truncatedTo(java.time.temporal.ChronoUnit.MICROS))
+                    && event.getRegistrationDeadline().truncatedTo(java.time.temporal.ChronoUnit.MICROS).equals(request.registrationDeadline().truncatedTo(java.time.temporal.ChronoUnit.MICROS))
                     && event.getCapacity() == request.capacity() && event.getCategory() == request.category())
                 return 0;
             eventService.updateEvent(event.getId(), request);
