@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
+import java.time.Instant;
 
 public interface EventRepository
         extends JpaRepository<Event, Long>,
@@ -17,6 +18,8 @@ public interface EventRepository
     Optional<Event> findByIdAndActiveTrue(Long id);
 
     boolean existsByClubIdAndTitle(Long clubId, String title);
+
+    boolean existsByClubIdAndTitleIgnoreCaseAndStartTime(Long clubId, String title, Instant startTime);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Event e where e.id = :id and e.active = true")
