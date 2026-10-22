@@ -13,9 +13,7 @@ export default function ImportEventsCsv() {
     try {
       const body = new FormData();
       body.append("file", file);
-      const response = await api.post("/admin/import/events/csv", body, {
-        headers: { "Content-Type": undefined }
-      });
+      const response = await api.post("/admin/import/events/csv", body, { headers: { "Content-Type": "multipart/form-data" } });
       setResult(response.data.data);
     } catch (err) {
       setError(err.response?.data?.message || "Unable to import this CSV.");
