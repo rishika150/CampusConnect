@@ -165,7 +165,7 @@ public class EventService {
             Long eventId,
             EventRequest request
     ) {
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findActiveByIdForUpdate(eventId)
                 .orElseThrow(() ->
                         new EventNotFoundException(eventId)
                 );
