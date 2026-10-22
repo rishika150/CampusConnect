@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
     boolean existsByUserIdAndEventId(Long userId, Long eventId);
+    long countByEventId(Long eventId);
     Optional<EventRegistration> findByUserIdAndEventId(Long userId, Long eventId);
     List<EventRegistration> findAllByUserIdOrderByRegisteredAtDesc(Long userId);
 }
