@@ -5,6 +5,7 @@ import { fetchClubs, fetchMyClubs } from "../services/ClubService";
 import { createClub, createEvent } from "../services/managementService";
 import ManageExistingEvents from "../components/events/ManageExistingEvents";
 import ManageClubRoles from "../components/events/ManageClubRoles";
+import ImportEventsCsv from "../components/events/ImportEventsCsv";
 
 const eventCategories = ["WORKSHOP", "HACKATHON", "SEMINAR", "TECH_TALK", "CULTURAL", "SPORTS", "NETWORKING", "OTHER"];
 const clubCategories = ["TECHNOLOGY", "CULTURAL", "SPORTS", "LITERARY", "MUSIC", "DANCE", "ENTREPRENEURSHIP", "SOCIAL_SERVICE", "ACADEMIC", "OTHER"];
@@ -125,6 +126,7 @@ export default function ManageEvents() {
       </section>
       {clubs.length > 0 && <ManageExistingEvents clubs={clubs} refreshKey={refreshKey} />}
       {admin && clubs.length > 0 && <ManageClubRoles clubs={clubs} />}
+      {admin && <ImportEventsCsv />}
       {admin && <section className="rounded-3xl border border-[#eaddea] bg-white p-6 md:p-8">
         <h2 className="text-xl font-bold text-[#28162f]">Create club</h2>
         <form onSubmit={saveClub} className="mt-5 grid gap-4 md:grid-cols-2">
