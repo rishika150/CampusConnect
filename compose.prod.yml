@@ -1,0 +1,44 @@
+# Example single-host deployment. Put HTTPS/TLS in front of frontend.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: campusconnect
+      POSTGRES_USER: campusconnect
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in environment}
+    volumes:
+      - campusconnect_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campusconnect -d campusconnect"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/campusconnect
+      DB_USERNAME: campusconnect
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Set a Base64 JWT signing key}
+      CORS_ALLOWED_ORIGINS: ${PUBLIC_ORIGIN:?Set the public HTTPS origin}
+      SPRING_PROFILES_ACTIVE: production
+      SHEET_SYNC_ENABLED: "false"
+    expose:
+      - "8080"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8088}:80"
+
+volumes:
+  campusconnect_prod_data:
