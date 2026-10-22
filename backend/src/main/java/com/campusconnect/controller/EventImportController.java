@@ -4,6 +4,7 @@ import com.campusconnect.dto.ApiResponse;
 import com.campusconnect.dto.EventRequest;
 import com.campusconnect.entity.EventCategory;
 import com.campusconnect.service.EventService;
+import com.campusconnect.repository.EventRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +21,14 @@ import java.util.List;
 @RequestMapping("/api/v1/admin/import")
 public class EventImportController {
     private final EventService events;
+    private final EventRepository eventRepository;
 
-    public EventImportController(EventService events) {
+    public EventImportController(EventService events, EventRepository eventRepository) {
         this.events = events;
+        this.eventRepository = eventRepository;
     }
 
-    public record ImportResult(int imported, int failed, List<String> errors) {}
+    public record ImportResult(int imported, int skipped, int failed, List<String> errors) {}
 
     @PostMapping(value = "/events/csv", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('UNIVERSITY_ADMIN')")
@@ -34,6 +37,7 @@ public class EventImportController {
             throw new IllegalArgumentException("CSV must be nonempty and no larger than 1 MB");
         var issues = new ArrayList<String>();
         int success = 0;
+        int skipped = 0;
         var format = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true)
                 .setIgnoreSurroundingSpaces(true).get();
         try (var reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
@@ -43,7 +47,7 @@ public class EventImportController {
             if (!parser.getHeaderMap().keySet().containsAll(required))
                 throw new IllegalArgumentException("CSV is missing required column headers");
             for (var row : parser) {
-                if (success + issues.size() >= 200) {
+                if (success + skipped + issues.size() >= 200) {
                     issues.add("Import stopped after 200 rows");
                     break;
                 }
@@ -58,6 +62,11 @@ public class EventImportController {
                     if (request.title().isBlank() || request.description().length() < 20 || request.venue().isBlank()
                             || request.capacity() < 1 || request.capacity() > 100000)
                         throw new IllegalArgumentException("Invalid event fields");
+                    if (eventRepository.existsByClubIdAndTitleIgnoreCaseAndStartTime(
+                            request.clubId(), request.title().trim(), request.startTime())) {
+                        skipped++;
+                        continue;
+                    }
                     events.createEvent(request);
                     success++;
                 } catch (Exception ex) {
@@ -66,6 +75,6 @@ public class EventImportController {
             }
         }
         return ResponseEntity.ok(ApiResponse.success("CSV import processed",
-                new ImportResult(success, issues.size(), issues)));
+                new ImportResult(success, skipped, issues.size(), issues)));
     }
 }
