@@ -120,8 +120,6 @@ export default function App() {
 
               <Route path="/clubs" element={<Clubs />} />
 
-              <Route path="/clubs" element={<Clubs />} />
-
               <Route path="/my-clubs" element={<MyClubs />} />
 
               <Route path="/events" element={<Events />} />
@@ -131,7 +129,7 @@ export default function App() {
                 element={<ComingSoon title="Event Details" />}
               />
 
-              <Route path="/profile" element={<Profile />} />ß
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
 
