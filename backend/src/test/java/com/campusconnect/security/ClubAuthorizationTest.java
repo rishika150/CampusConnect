@@ -22,7 +22,7 @@ class ClubAuthorizationTest {
     @Test
     void coordinatorCannotManageAnotherClub() {
         var authorization = new ClubAuthorization(users, memberships, events);
-        var auth = new UsernamePasswordAuthenticationToken("student@example.com", "ignored");
+        var auth = new UsernamePasswordAuthenticationToken("student@example.com", "ignored", java.util.List.of());
         var student = mock(User.class);
         when(student.isEnabled()).thenReturn(true);
         when(student.getRole()).thenReturn(Role.STUDENT);
@@ -47,7 +47,7 @@ class ClubAuthorizationTest {
     @Test
     void enabledUniversityAdminCanManageAnyClub() {
         var authorization = new ClubAuthorization(users, memberships, events);
-        var auth = new UsernamePasswordAuthenticationToken("admin@example.com", "ignored");
+        var auth = new UsernamePasswordAuthenticationToken("admin@example.com", "ignored", java.util.List.of());
         var admin = mock(User.class);
         when(admin.isEnabled()).thenReturn(true);
         when(admin.getRole()).thenReturn(Role.UNIVERSITY_ADMIN);
