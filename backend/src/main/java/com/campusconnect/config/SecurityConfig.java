@@ -32,8 +32,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(@Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174}") String allowedOrigins) {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim).filter(s -> !s.isBlank()).toList());
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim).filter(s -> !s.isBlank()).toList();
+        if (origins.isEmpty() || origins.stream().anyMatch(origin ->
+                "*".equals(origin) || !(origin.startsWith("http://") || origin.startsWith("https://")))) {
+            throw new IllegalArgumentException("CORS_ALLOWED_ORIGINS must specify explicit HTTP(S) origins");
+        }
+        configuration.setAllowedOrigins(origins);
 
         configuration.setAllowedMethods(List.of(
                 "GET",
@@ -48,7 +53,8 @@ public class SecurityConfig {
                 "Content-Type"
         ));
 
-        configuration.setAllowCredentials(true);
+        // Bearer tokens are sent in Authorization headers; cross-origin cookies are not used.
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
