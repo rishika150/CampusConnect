@@ -316,3 +316,12 @@ The backend can refresh a public sheet **every 30 minutes**, but scheduling is *
 A clean PostgreSQL database now uses Flyway `V1__initial_schema.sql` to create the tables, keys and indexes. Hibernate uses `ddl-auto=validate`, so application startup checks the schema without silently modifying it. CI tests the baseline on a fresh PostgreSQL service.
 
 **Important: databases created by the earlier `ddl-auto=update` configuration are not automatically migrated.** Back up any existing data before upgrading. Flyway's default `baseline-on-migrate=false` intentionally stops startup on nonempty, unversioned schemas rather than risking data loss. For a pre-existing installation, compare its actual schema against V1, reconcile any differences, and establish a Flyway baseline only after review. Do not delete an existing database to get the app running.
+
+
+## Single-host deployment example
+
+`compose.prod.yml` provisions PostgreSQL, the Spring Boot backend, and Nginx hosting the compiled React application. Nginx proxies `/api/` to the backend and serves SPA routes from `index.html`. The backend is internal to the Compose network; the frontend is exposed on `FRONTEND_PORT` (default 8088).
+
+For a **new, empty database**, export `POSTGRES_PASSWORD`, a random Base64-encoded `JWT_SECRET` (at least 32 decoded bytes), and `PUBLIC_ORIGIN` (your eventual HTTPS origin), then run `docker compose -f compose.prod.yml up --build -d`. Keep secrets outside version control and back up the persistent database volume. This example does not provision TLS, a public domain, backups, alerting or a container registry. Put a secure HTTPS reverse proxy in front of port 8088 before exposing it publicly. Do not use demo or default credentials in production.
+
+The production Spring profile validates Flyway-managed schema and disables Swagger/OpenAPI. The new CI check validates the Compose specification but **does not perform a container build or public deployment**. Existing databases need a reviewed Flyway baseline before switching to this configuration.
