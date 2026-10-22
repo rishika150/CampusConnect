@@ -2,6 +2,8 @@ package com.campusconnect.controller;
 
 import com.campusconnect.dto.ApiResponse;
 import com.campusconnect.dto.MembershipRoleRequest;
+import java.util.List;
+import java.util.Map;
 import com.campusconnect.entity.MembershipRole;
 import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.repository.ClubMembershipRepository;
@@ -21,6 +23,21 @@ public class ClubCoordinatorController {
     public ClubCoordinatorController(ClubMembershipRepository memberships, ClubRepository clubs) {
         this.memberships = memberships;
         this.clubs = clubs;
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('UNIVERSITY_ADMIN')")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listMembers(@PathVariable Long clubId) {
+        if (!clubs.existsById(clubId))
+            throw new ResourceNotFoundException("Club", "id", clubId);
+        var data = memberships.findAllByClubIdOrderByJoinedAtAsc(clubId).stream()
+                .map(m -> Map.<String, Object>of(
+                        "userId", m.getUser().getId(),
+                        "fullName", m.getUser().getFullName(),
+                        "email", m.getUser().getEmail(),
+                        "role", m.getRole().name()
+                )).toList();
+        return ResponseEntity.ok(ApiResponse.success("Club members retrieved", data));
     }
 
     @PutMapping("/{userId}/role")
