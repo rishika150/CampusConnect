@@ -14,6 +14,7 @@ import Clubs from "./pages/Clubs";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import MyClubs from "./pages/MyClubs";
+import MyEvents from "./pages/MyEvents";
 import Profile from "./pages/Profile";
 
 
@@ -124,6 +125,7 @@ export default function App() {
               <Route path="/my-clubs" element={<MyClubs />} />
 
               <Route path="/events" element={<Events />} />
+              <Route path="/my-events" element={<MyEvents />} />
 
               <Route
                 path="/events/:eventId"
