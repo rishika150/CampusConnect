@@ -47,7 +47,7 @@ class EventRegistrationIntegrationTest {
         }
 
         assertEquals(1, events.findById(event.getId()).orElseThrow().getRegisteredCount());
-        assertEquals(1, registrations.count());
+        assertEquals(1, registrations.countByEventId(event.getId()));
     }
 
 
@@ -77,6 +77,12 @@ class EventRegistrationIntegrationTest {
         assertFalse(events.findById(event.getId()).orElseThrow().isActive());
         assertThrows(EventNotFoundException.class, () -> service.register(event.getId(), user1.getEmail()));
         assertThrows(EventNotFoundException.class, () -> service.register(event.getId(), user2.getEmail()));
+
+        service.cancel(event.getId(), user1.getEmail());
+        assertEquals(1, events.findById(event.getId()).orElseThrow().getRegisteredCount());
+        service.cancel(event.getId(), user2.getEmail());
+        assertEquals(0, events.findById(event.getId()).orElseThrow().getRegisteredCount());
+        assertEquals(0, registrations.countByEventId(event.getId()));
     }
 
     private int attempt(Long eventId, String email, CountDownLatch start) {
