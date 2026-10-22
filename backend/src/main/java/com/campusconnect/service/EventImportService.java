@@ -6,7 +6,8 @@ import com.campusconnect.entity.EventCategory;
 import com.campusconnect.repository.EventRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 import java.io.Reader;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,10 +18,12 @@ import java.util.List;
 public class EventImportService {
     private final EventRepository repository;
     private final EventService eventService;
+    private final TransactionTemplate transactions;
 
-    public EventImportService(EventRepository repository, EventService eventService) {
+    public EventImportService(EventRepository repository, EventService eventService, PlatformTransactionManager manager) {
         this.repository = repository;
         this.eventService = eventService;
+        this.transactions = new TransactionTemplate(manager);
     }
 
     public record ImportResult(int imported, int updated, int skipped, int failed, List<String> errors) {}
@@ -60,7 +63,7 @@ public class EventImportService {
                     if (request.title().isBlank() || request.description().length() < 20 ||
                             request.venue().isBlank() || request.capacity() < 1 || request.capacity() > 100000)
                         throw new IllegalArgumentException("Invalid event fields");
-                    int result = upsert(sourceKey, request);
+                    int result = transactions.execute(status -> upsert(sourceKey, request));
                     if (result == 1) imported++;
                     else if (result == 2) updated++;
                     else skipped++;
@@ -73,8 +76,7 @@ public class EventImportService {
         return new ImportResult(imported, updated, skipped, errors.size(), errors);
     }
 
-    @Transactional
-    public int upsert(String sourceKey, EventRequest request) {
+    private int upsert(String sourceKey, EventRequest request) {
         // This method is also invoked through the transactional proxy by CSV import controller.
         var existing = repository.findBySourceKey(sourceKey);
         if (existing.isPresent()) {
