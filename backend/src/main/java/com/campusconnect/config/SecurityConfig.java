@@ -93,7 +93,8 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                        .requestMatchers("/api/v1/clubs/me").authenticated()
+                        .requestMatchers("/api/v1/clubs/me", "/api/v1/registrations/**").authenticated()
+                        .requestMatchers("/api/v1/events/*/registrations/**").authenticated()
 
                         .requestMatchers(
                                 HttpMethod.GET,
