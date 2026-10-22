@@ -42,5 +42,16 @@ class EventImportServiceIntegrationTest {
         assertEquals(1, third.updated());
         var stored = events.findBySourceKey(source + ":event-one").orElseThrow();
         assertEquals(45, stored.getCapacity());
+
+        String withBanner = revised.replace(
+                "capacity,category\\n", "capacity,category,bannerUrl\\n"
+        ).replace(",45,WORKSHOP\\n", ",45,WORKSHOP,https://example.org/banner.png\\n");
+        var fourth = imports.process(new StringReader(withBanner), source);
+        assertEquals(1, fourth.updated(), fourth.toString());
+        assertEquals(0, fourth.failed(), fourth.toString());
+        assertEquals("https://example.org/banner.png",
+                events.findBySourceKey(source + ":event-one").orElseThrow().getBannerUrl());
+        var fifth = imports.process(new StringReader(withBanner), source);
+        assertEquals(1, fifth.skipped(), fifth.toString());
     }
 }
