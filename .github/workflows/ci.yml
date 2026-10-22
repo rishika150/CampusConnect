@@ -153,3 +153,13 @@ jobs:
           JWT_SECRET: ci-placeholder-jwt-not-used-for-deployment
           PUBLIC_ORIGIN: https://campusconnect.example.org
         run: docker compose -f compose.prod.yml config --quiet
+      - name: Build production frontend and backend images
+        run: |
+          docker build -t campusconnect-backend:ci ./backend
+          docker build -t campusconnect-frontend:ci ./frontend
+      - name: Check React static assets in container
+        run: |
+          container_id=$(docker create campusconnect-frontend:ci)
+          docker cp "$container_id:/usr/share/nginx/html/index.html" /tmp/campusconnect-index.html
+          docker rm "$container_id"
+          test -s /tmp/campusconnect-index.html
