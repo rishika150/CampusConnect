@@ -17,6 +17,7 @@ export default function EventDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [registered, setRegistered] = useState(false);
+  const [registrationReady, setRegistrationReady] = useState(false);
   const [registrationBusy, setRegistrationBusy] = useState(false);
   const [registrationMessage, setRegistrationMessage] = useState("");
 
@@ -27,10 +28,11 @@ export default function EventDetails() {
     setError("");
     setEvent(null);
     setRegistered(false);
+    setRegistrationReady(false);
     setRegistrationMessage("");
 
     fetchMyEventRegistrations()
-      .then((items) => { if (active) setRegistered(items.some((item) => String(item.eventId) === String(eventId))); })
+      .then((items) => { if (active) { setRegistered(items.some((item) => String(item.eventId) === String(eventId))); setRegistrationReady(true); } })
       .catch(() => { if (active) setRegistrationMessage("Registration status could not be loaded. Refresh before registering."); });
 
     fetchEventById(eventId, controller.signal)
@@ -48,15 +50,14 @@ export default function EventDetails() {
   }, [eventId]);
 
   async function changeRegistration() {
-    if (registrationBusy || !event) return;
+    if (registrationBusy || !registrationReady || !event) return;
     setRegistrationBusy(true);
     setRegistrationMessage("");
     try {
       if (registered) await cancelEventRegistration(event.id);
       else await registerForEvent(event.id);
       setRegistered(!registered);
-      const refreshed = await fetchEventById(event.id);
-      setEvent(refreshed);
+      try { setEvent(await fetchEventById(event.id)); } catch { /* Registration already succeeded. */ }
       setRegistrationMessage(registered ? "Your registration was cancelled." : "You're registered for this event.");
     } catch (err) {
       setRegistrationMessage(err.response?.data?.message || "Unable to change registration. Please try again.");
@@ -103,7 +104,7 @@ export default function EventDetails() {
             <section className="rounded-xl border border-[#eaddea] bg-[#fbf5f9] p-5">
               <h2 className="text-lg font-bold text-[#28162f]">Your registration</h2>
               <p className="mt-1 text-sm text-slate-600">{registered ? "You have a seat reserved." : "Reserve a seat while registration is open."}</p>
-              <button type="button" disabled={registrationBusy || (!registered && (event.availableSeats <= 0 || event.status !== "UPCOMING" || new Date(event.registrationDeadline) <= new Date()))}
+              <button type="button" disabled={registrationBusy || !registrationReady || (!registered && (event.availableSeats <= 0 || event.status !== "UPCOMING" || new Date(event.registrationDeadline) <= new Date()))}
                 onClick={changeRegistration}
                 className="mt-4 rounded-xl bg-[#7e367a] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
                 {registrationBusy ? "Processing…" : registered ? "Cancel registration" : "Register for event"}
