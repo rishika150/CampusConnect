@@ -28,6 +28,10 @@ public interface EventRepository
     boolean existsByClubIdAndTitleIgnoreCaseAndStartTime(Long clubId, String title, Instant startTime);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Event e where e.id = :id")
+    Optional<Event> findByIdForUpdate(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Event e where e.id = :id and e.active = true")
     Optional<Event> findActiveByIdForUpdate(@Param("id") Long id);
 }
