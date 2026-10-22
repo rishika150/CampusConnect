@@ -142,3 +142,14 @@ jobs:
       - name: Show backend failures
         if: failure()
         run: tail -180 /tmp/campusconnect-backend.log
+
+  deployment-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate production Compose specification
+        env:
+          POSTGRES_PASSWORD: ci-placeholder-database-password
+          JWT_SECRET: ci-placeholder-jwt-not-used-for-deployment
+          PUBLIC_ORIGIN: https://campusconnect.example.org
+        run: docker compose -f compose.prod.yml config --quiet
