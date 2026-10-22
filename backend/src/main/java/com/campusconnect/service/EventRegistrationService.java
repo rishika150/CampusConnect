@@ -53,7 +53,7 @@ public class EventRegistrationService {
 
     @Transactional
     public void cancel(Long eventId, String email) {
-        Event event = events.findActiveByIdForUpdate(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        Event event = events.findByIdForUpdate(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         var user = users.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         var registration = registrations.findByUserIdAndEventId(user.getId(), eventId)
