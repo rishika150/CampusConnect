@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, Clock3, MapPin, Users, Building2 } from "lucide-react";
-import { fetchEventById } from "../services/eventService";
+import { fetchEventById, fetchMyEventRegistrations, registerForEvent, cancelEventRegistration } from "../services/eventService";
 
 function formatDate(value) {
   if (!value) return "Not specified";
@@ -16,6 +16,9 @@ export default function EventDetails() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [registered, setRegistered] = useState(false);
+  const [registrationBusy, setRegistrationBusy] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -23,6 +26,12 @@ export default function EventDetails() {
     setLoading(true);
     setError("");
     setEvent(null);
+    setRegistered(false);
+    setRegistrationMessage("");
+
+    fetchMyEventRegistrations()
+      .then((items) => { if (active) setRegistered(items.some((item) => String(item.eventId) === String(eventId))); })
+      .catch(() => { if (active) setRegistrationMessage("Registration status could not be loaded. Refresh before registering."); });
 
     fetchEventById(eventId, controller.signal)
       .then((data) => { if (active) setEvent(data); })
@@ -37,6 +46,24 @@ export default function EventDetails() {
 
     return () => { active = false; controller.abort(); };
   }, [eventId]);
+
+  async function changeRegistration() {
+    if (registrationBusy || !event) return;
+    setRegistrationBusy(true);
+    setRegistrationMessage("");
+    try {
+      if (registered) await cancelEventRegistration(event.id);
+      else await registerForEvent(event.id);
+      setRegistered(!registered);
+      const refreshed = await fetchEventById(event.id);
+      setEvent(refreshed);
+      setRegistrationMessage(registered ? "Your registration was cancelled." : "You're registered for this event.");
+    } catch (err) {
+      setRegistrationMessage(err.response?.data?.message || "Unable to change registration. Please try again.");
+    } finally {
+      setRegistrationBusy(false);
+    }
+  }
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 pb-12">
@@ -73,9 +100,16 @@ export default function EventDetails() {
               <Info icon={Users} label="Available seats" value={String(event.availableSeats ?? Math.max(0, (event.capacity ?? 0) - (event.registeredCount ?? 0)))} />
               <Info icon={CalendarDays} label="Registration deadline" value={formatDate(event.registrationDeadline)} />
             </div>
-            <p className="rounded-xl border border-[#eaddea] bg-[#fbf5f9] p-4 text-sm text-slate-700">
-              Event registration is not available yet. You can view complete event information here.
-            </p>
+            <section className="rounded-xl border border-[#eaddea] bg-[#fbf5f9] p-5">
+              <h2 className="text-lg font-bold text-[#28162f]">Your registration</h2>
+              <p className="mt-1 text-sm text-slate-600">{registered ? "You have a seat reserved." : "Reserve a seat while registration is open."}</p>
+              <button type="button" disabled={registrationBusy || (!registered && (event.availableSeats <= 0 || event.status !== "UPCOMING" || new Date(event.registrationDeadline) <= new Date()))}
+                onClick={changeRegistration}
+                className="mt-4 rounded-xl bg-[#7e367a] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                {registrationBusy ? "Processing…" : registered ? "Cancel registration" : "Register for event"}
+              </button>
+              {registrationMessage && <p role="status" className="mt-3 text-sm text-slate-700">{registrationMessage}</p>}
+            </section>
           </div>
         </article>
       ) : null}
