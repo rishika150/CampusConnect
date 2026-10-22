@@ -30,7 +30,6 @@ class EventRegistrationServiceTest {
     void setup() {
         service = new EventRegistrationService(events, registrations, users);
         var club = mock(Club.class);
-        when(club.isActive()).thenReturn(true);
         event = new Event("Campus workshop", "Learn together", "Hall",
                 Instant.now().plusSeconds(7200), Instant.now().plusSeconds(10800),
                 Instant.now().plusSeconds(3600), 1, null, EventCategory.WORKSHOP, club);
