@@ -19,6 +19,10 @@ public interface EventRepository
 
     Optional<Event> findBySourceKey(String sourceKey);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Event e where e.sourceKey = :sourceKey")
+    Optional<Event> findBySourceKeyForUpdate(@Param("sourceKey") String sourceKey);
+
     boolean existsByClubIdAndTitle(Long clubId, String title);
 
     boolean existsByClubIdAndTitleIgnoreCaseAndStartTime(Long clubId, String title, Instant startTime);
