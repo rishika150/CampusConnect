@@ -16,6 +16,8 @@ public interface EventRepository
 
     Optional<Event> findByIdAndActiveTrue(Long id);
 
+    boolean existsByClubIdAndTitle(Long clubId, String title);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Event e where e.id = :id and e.active = true")
     Optional<Event> findActiveByIdForUpdate(@Param("id") Long id);
