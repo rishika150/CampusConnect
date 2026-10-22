@@ -22,7 +22,7 @@ spring:
     time-zone: UTC
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 springdoc:
   api-docs:
@@ -41,5 +41,5 @@ logging:
 application:
   security:
     jwt:
-      secret: ${JWT_SECRET:VGVtcG9yYXJ5RGV2ZWxvcG1lbnRTZWNyZXRLZXlGb3JDYW1wdXNDb25uZWN0MjAyNg==}
+      secret: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION:86400000}
