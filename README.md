@@ -287,3 +287,11 @@ B.Tech Computer Science (Artificial Intelligence)
 Indira Gandhi Delhi Technical University for Women (IGDTUW)
 
 GitHub: https://github.com/rishika150
+
+## Interview demo data
+
+The optional Spring profile `demo` seeds **8 fictional clubs and 32 example events** with dates relative to the first run. Run the backend with `SPRING_PROFILES_ACTIVE=demo` and your usual PostgreSQL and JWT environment settings. Seeds skip previously created club/event titles and do **not** represent actual university announcements. The normal profile does not seed any data.
+
+## Admin event CSV import
+
+A university administrator can upload a UTF-8 CSV at `POST /api/v1/admin/import/events/csv` (multipart field `file`) or through the management workspace. Required headers: `clubId,title,description,venue,startTime,endTime,registrationDeadline,capacity,category`. Optional: `bannerUrl`. All dates must be ISO-8601 UTC instants, e.g. `2026-12-01T10:00:00Z`. The upload is limited to 1 MB and processing is capped at 200 rows. Each row is validated and reports errors. **Re-uploading a file can create duplicates**; idempotent external-ID imports are a separate planned enhancement.
