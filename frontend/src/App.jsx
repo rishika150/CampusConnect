@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import Clubs from "./pages/Clubs";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
+import ManageEvents from "./pages/ManageEvents";
 import MyClubs from "./pages/MyClubs";
 import MyEvents from "./pages/MyEvents";
 import Profile from "./pages/Profile";
@@ -126,6 +127,7 @@ export default function App() {
 
               <Route path="/events" element={<Events />} />
               <Route path="/my-events" element={<MyEvents />} />
+              <Route path="/manage-events" element={<ManageEvents />} />
 
               <Route
                 path="/events/:eventId"
