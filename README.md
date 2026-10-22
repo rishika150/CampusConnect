@@ -22,31 +22,31 @@ A modern full-stack campus community platform that enables students to discover 
 
 ## Dashboard
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](screenshots/dashboard.png)
 
 ---
 
 ## Clubs
 
-![Clubs](docs/screenshots/clubs.png)
+![Clubs](screenshots/clubs.png)
 
 ---
 
 ## Events
 
-![Events](docs/screenshots/events.png)
+![Events](screenshots/events.png)
 
 ---
 
 ## My Clubs
 
-![My Clubs](docs/screenshots/my-clubs.png)
+![My Clubs](screenshots/my-clubs.png)
 
 ---
 
 ## Profile
 
-![Profile](docs/screenshots/profile.png)
+![Profile](screenshots/profile.png)
 
 ---
 
@@ -179,8 +179,7 @@ CampusConnect
 │   ├── context
 │   └── assets
 │
-├── docs
-│   └── screenshots
+├── screenshots
 │
 └── README.md
 ```
@@ -200,7 +199,10 @@ cd CampusConnect
 
 ## Backend
 
+Set a strong Base64-encoded JWT secret before starting. For local development, copy `.env.example` to `.env` and export the values in your shell (Docker Compose reads `.env` for Postgres only). Generate a secret with `openssl rand -base64 48`. Never commit the generated secret.
+
 ```bash
+export JWT_SECRET="$(openssl rand -base64 48)"
 cd backend
 ./mvnw spring-boot:run
 ```
@@ -241,7 +243,10 @@ DB_URL=
 DB_USERNAME=
 
 DB_PASSWORD=
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
 ```
+
+The backend listens on `PORT` when supplied by the deployment platform, otherwise `SERVER_PORT` or port 8080.
 
 ## Frontend
 
