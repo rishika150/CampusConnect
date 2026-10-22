@@ -19,24 +19,6 @@ import MyEvents from "./pages/MyEvents";
 import Profile from "./pages/Profile";
 
 
-function ComingSoon({ title }) {
-  return (
-    <div className="mx-auto max-w-3xl rounded-[28px] border border-white bg-white/80 p-10 text-center shadow-[0_15px_45px_rgba(36,42,89,0.07)]">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-[22px] bg-indigo-100 text-2xl">
-        ✨
-      </div>
-
-      <h2 className="mt-5 text-3xl font-bold text-[#181b2e]">
-        {title}
-      </h2>
-
-      <p className="mt-3 text-slate-500">
-        This CampusConnect experience is being prepared next.
-      </p>
-    </div>
-  );
-}
-
 function LandingPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f3f5fb] px-6 py-8">
