@@ -82,7 +82,7 @@ public class EventImportService {
 
     private int upsert(String sourceKey, EventRequest request) {
         // The caller wraps each row in a TransactionTemplate for independent commits.
-        var existing = repository.findBySourceKey(sourceKey);
+        var existing = repository.findBySourceKeyForUpdate(sourceKey);
         if (existing.isPresent()) {
             Event event = existing.get();
             if (!event.isActive()) return 0; // Do not resurrect cancelled events.
