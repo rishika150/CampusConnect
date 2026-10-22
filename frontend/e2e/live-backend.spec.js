@@ -156,3 +156,31 @@ test("coordinator can publish only for the assigned club", async ({ request }) =
   });
   expect(otherEvent.status(), await otherEvent.text()).toBe(403);
 });
+
+test("security boundaries reject anonymous and student admin access", async ({ request }) => {
+  test.skip(!process.env.E2E_REAL_BACKEND, "Requires real API and PostgreSQL");
+  const suffix = Math.random().toString(36).slice(2, 10);
+  const anonymous = await request.get(`${backend}/users/me`);
+  expect(anonymous.status()).toBe(401);
+
+  const registration = await request.post(`${backend}/auth/register`, {
+    data: { fullName: "Security Student", email: `security-${suffix}@example.org`, password: "StudentPass123" }
+  });
+  expect(registration.status(), await registration.text()).toBe(201);
+  const headers = { Authorization: `Bearer ${(await registration.json()).data.accessToken}` };
+  const denied = await request.post(`${backend}/admin/import/events/google-sheet`, {
+    headers, data: { url: "https://docs.google.com/spreadsheets/d/example/export?format=csv", source: "test" }
+  });
+  expect(denied.status()).toBe(403);
+
+  const invalidRegistration = await request.post(`${backend}/auth/register`, {
+    data: { fullName: "", email: "not-an-email", password: "short" }
+  });
+  expect(invalidRegistration.status()).toBe(400);
+
+  const blockedOrigin = await request.fetch(`${backend}/events`, {
+    method: "OPTIONS",
+    headers: { Origin: "https://untrusted.example.org", "Access-Control-Request-Method": "GET" }
+  });
+  expect(blockedOrigin.status()).toBe(403);
+});
