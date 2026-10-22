@@ -28,9 +28,9 @@ export default function ImportEventsCsv() {
     </form>
     {error && <p role="alert" className="mt-3 text-sm text-rose-700">{error}</p>}
     {result && <div role="status" className="mt-4 text-sm">
-      <p className="font-semibold">Imported: {result.imported}; failed: {result.failed}</p>
+      <p className="font-semibold">Imported: {result.imported}; skipped duplicates: {result.skipped ?? 0}; failed: {result.failed}</p>
       {result.errors?.length > 0 && <ul className="mt-2 list-disc space-y-1 pl-5">{result.errors.map((text, i) => <li key={i}>{text}</li>)}</ul>}
     </div>}
-    <p className="mt-3 text-xs text-slate-500">Review source data before uploading. Re-importing the same CSV may create duplicate events until external-ID deduplication is added.</p>
+    <p className="mt-3 text-xs text-slate-500">Review source data before uploading. Entries with the same club, title, and start time are skipped. Stable external-ID synchronization is a future enhancement.</p>
   </section>;
 }
