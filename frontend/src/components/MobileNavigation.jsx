@@ -23,9 +23,9 @@ const items = [
     to: "/events",
   },
   {
-    label: "Profile",
+    label: "My Events",
     icon: UserRound,
-    to: "/profile",
+    to: "/my-events",
   },
 ];
 
