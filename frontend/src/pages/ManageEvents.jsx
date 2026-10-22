@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchClubs, fetchMyClubs } from "../services/ClubService";
 import { createClub, createEvent } from "../services/managementService";
+import ManageExistingEvents from "../components/events/ManageExistingEvents";
 
 const eventCategories = ["WORKSHOP", "HACKATHON", "SEMINAR", "TECH_TALK", "CULTURAL", "SPORTS", "NETWORKING", "OTHER"];
 const clubCategories = ["TECHNOLOGY", "CULTURAL", "SPORTS", "LITERARY", "MUSIC", "DANCE", "ENTREPRENEURSHIP", "SOCIAL_SERVICE", "ACADEMIC", "OTHER"];
@@ -24,6 +25,7 @@ export default function ManageEvents() {
   const [clubForm, setClubForm] = useState(initialClub);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -73,6 +75,7 @@ export default function ManageEvents() {
         throw new Error("Registration must close before the event begins, and its end must follow its start.");
       const saved = await createEvent(payload);
       setNotice("Event created successfully.");
+      setRefreshKey(key => key + 1);
       setEventForm({ ...initialEvent, clubId: String(saved.clubId) });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Unable to create event.");
@@ -119,6 +122,7 @@ export default function ManageEvents() {
           <button disabled={saving} className="rounded-xl bg-[#7e367a] px-6 py-3 font-bold text-white disabled:opacity-50 md:col-span-2">{saving ? "Publishing…" : "Publish event"}</button>
         </form>}
       </section>
+      {clubs.length > 0 && <ManageExistingEvents clubs={clubs} refreshKey={refreshKey} />}
       {admin && <section className="rounded-3xl border border-[#eaddea] bg-white p-6 md:p-8">
         <h2 className="text-xl font-bold text-[#28162f]">Create club</h2>
         <form onSubmit={saveClub} className="mt-5 grid gap-4 md:grid-cols-2">
