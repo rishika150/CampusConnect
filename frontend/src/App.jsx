@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Clubs from "./pages/Clubs";
 import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
 import MyClubs from "./pages/MyClubs";
 import Profile from "./pages/Profile";
 
@@ -126,7 +127,7 @@ export default function App() {
 
               <Route
                 path="/events/:eventId"
-                element={<ComingSoon title="Event Details" />}
+                element={<EventDetails />}
               />
 
               <Route path="/profile" element={<Profile />} />
