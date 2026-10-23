@@ -21,7 +21,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401 &&
-        !/\\/auth\\/(login|register)$/.test(error.config?.url ?? "")) {
+        !["/auth/login", "/auth/register"].some(path => (error.config?.url ?? "").endsWith(path))) {
       localStorage.removeItem("campusconnect_token");
       localStorage.removeItem("campusconnect_user");
       if (!["/login", "/register"].includes(window.location.pathname)) {
