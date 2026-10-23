@@ -60,6 +60,9 @@ public record EventRequest(
         EventCategory category,
 
         @NotNull(message = "Club ID is required")
-        Long clubId
+        Long clubId,
+        @Size(max = 500) String registrationFormUrl,
+        @Pattern(regexp = "entry\\\\.[0-9]+", message = "Name entry ID must look like entry.123456") String formNameEntryId,
+        @Pattern(regexp = "entry\\\\.[0-9]+", message = "Email entry ID must look like entry.123456") String formEmailEntryId
 ) {
 }
