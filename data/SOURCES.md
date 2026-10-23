@@ -7,6 +7,7 @@ Collected from publicly indexed university and club pages on 23 October 2026. No
 - 2025 admission brochure: https://www.igdtuw.ac.in/IGDTUW/uploads/204430209.pdf
 - IGDTUW clubs page: https://www.igdtuw.ac.in/student-life/clubs-societies/student-life/clubs-societies/clubs
 - GDG on Campus IGDTUW public LinkedIn: https://in.linkedin.com/company/dscigdtuw
+- Lean In IGDTUW event announcements: https://in.linkedin.com/company/lean-in-igdtuw
 - CodeBenders public LinkedIn: https://in.linkedin.com/in/codebenders-igdtuw
 - AWS Student Builder Group public LinkedIn: https://in.linkedin.com/company/aws-student-builder-group-igdtuw
 - ACM IGDTUW independent public chapter site: https://acmigdtuw.github.io/acmigdtuw/
