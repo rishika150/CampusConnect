@@ -32,6 +32,9 @@ public class EventRegistrationService {
     public EventRegistrationResponse register(Long eventId, String email) {
         // Serialize all capacity mutations for an event through a database row lock.
         Event event = events.findActiveByIdForUpdate(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        if (event.getRegistrationFormUrl() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This event uses an external Google Form");
+        }
         var user = users.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         if (registrations.existsByUserIdAndEventId(user.getId(), eventId)) {
