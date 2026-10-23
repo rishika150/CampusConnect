@@ -24,7 +24,10 @@ public record EventResponse(
         Long clubId,
         String clubName,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String registrationFormUrl,
+        String formNameEntryId,
+        String formEmailEntryId
 ) {
 
     public static EventResponse from(Event event) {
@@ -49,7 +52,10 @@ public record EventResponse(
                 event.getClub().getId(),
                 event.getClub().getName(),
                 event.getCreatedAt(),
-                event.getUpdatedAt()
+                event.getUpdatedAt(),
+                event.getRegistrationFormUrl(),
+                event.getFormNameEntryId(),
+                event.getFormEmailEntryId()
         );
     }
 }
