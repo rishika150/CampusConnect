@@ -20,6 +20,7 @@ export default function EventDetails() {
   const [registrationReady, setRegistrationReady] = useState(false);
   const [registrationBusy, setRegistrationBusy] = useState(false);
   const [registrationMessage, setRegistrationMessage] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -47,7 +48,7 @@ export default function EventDetails() {
       .finally(() => { if (active) setLoading(false); });
 
     return () => { active = false; controller.abort(); };
-  }, [eventId]);
+  }, [eventId, retryKey]);
 
   async function changeRegistration() {
     if (registrationBusy || !registrationReady || !event) return;
@@ -77,6 +78,7 @@ export default function EventDetails() {
         <div role="alert" className="rounded-3xl border border-rose-200 bg-white p-10">
           <h1 className="text-2xl font-bold text-[#28162f]">Event unavailable</h1>
           <p className="mt-3 text-slate-600">{error}</p>
+          <button type="button" onClick={() => setRetryKey(key => key + 1)} className="mt-5 mr-4 rounded-xl bg-[#7e367a] px-4 py-2 font-semibold text-white">Retry</button>
           <Link to="/events" className="mt-5 inline-block font-semibold text-[#7e367a] underline">Browse events</Link>
         </div>
       ) : event ? (
@@ -110,6 +112,7 @@ export default function EventDetails() {
                 {registrationBusy ? "Processing…" : registered ? "Cancel registration" : "Register for event"}
               </button>
               {registrationMessage && <p role="status" className="mt-3 text-sm text-slate-700">{registrationMessage}</p>}
+              {!registrationReady && <button type="button" onClick={() => setRetryKey(key => key + 1)} className="mt-3 block text-sm font-semibold text-[#7e367a] underline">Retry registration status</button>}
             </section>
           </div>
         </article>
