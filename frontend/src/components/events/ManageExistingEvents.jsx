@@ -45,6 +45,9 @@ export default function ManageExistingEvents({ clubs, refreshKey = 0 }) {
         title: editing.title, description: editing.description, venue: editing.venue,
         clubId: Number(effectiveClubId), category: editing.category,
         capacity: Number(editing.capacity), bannerUrl: editing.bannerUrl || null,
+        registrationFormUrl: editing.registrationFormUrl?.trim() || null,
+        formNameEntryId: editing.formNameEntryId?.trim() || null,
+        formEmailEntryId: editing.formEmailEntryId?.trim() || null,
         startTime: new Date(editing.startTime).toISOString(),
         endTime: new Date(editing.endTime).toISOString(),
         registrationDeadline: new Date(editing.registrationDeadline).toISOString(),
@@ -99,6 +102,7 @@ export default function ManageExistingEvents({ clubs, refreshKey = 0 }) {
     {editing && <form onSubmit={save} className="mt-6 grid gap-3 border-t pt-5 sm:grid-cols-2">
       <h3 className="font-bold sm:col-span-2">Edit {editing.title}</h3>
       {["title","venue","bannerUrl"].map(key => <label key={key} className="text-sm">{key}<input className={css} minLength={key === "title" || key === "venue" ? 3 : undefined} maxLength={key === "title" ? 120 : key === "venue" ? 250 : 500} value={editing[key] || ""} onChange={e=>setEditing({...editing,[key]:e.target.value})} required={key !== "bannerUrl"}/></label>)}
+      {["registrationFormUrl","formNameEntryId","formEmailEntryId"].map(key => <label key={key} className="text-sm">{key}<input className={css} value={editing[key] || ""} maxLength={key==="registrationFormUrl"?500:40} onChange={e => setEditing({...editing,[key]:e.target.value})} placeholder={key==="registrationFormUrl"?"https://forms.gle/...":"entry.123456"}/></label>)}
       <label className="text-sm">Category<select className={css} value={editing.category} onChange={e=>setEditing({...editing,category:e.target.value})}>{["WORKSHOP","HACKATHON","SEMINAR","TECH_TALK","CULTURAL","SPORTS","NETWORKING","OTHER"].map(v=><option key={v}>{v}</option>)}</select></label>
       {["startTime","endTime","registrationDeadline"].map(key=><label key={key} className="text-sm">{key}<input type="datetime-local" required className={css} value={editing[key]} onChange={e=>setEditing({...editing,[key]:e.target.value})}/></label>)}
       <label className="text-sm">Capacity<input type="number" min="1" max="100000" required className={css} value={editing.capacity} onChange={e=>setEditing({...editing,capacity:e.target.value})}/></label>
