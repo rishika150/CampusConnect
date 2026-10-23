@@ -184,6 +184,10 @@ public class EventService {
             );
         }
 
+        if (event.getRegisteredCount() > 0 && event.getRegistrationFormUrl() == null
+                && request.registrationFormUrl() != null && !request.registrationFormUrl().isBlank()) {
+            throw new IllegalArgumentException("Cannot switch to Google Forms while native registrations exist");
+        }
         applyRegistrationForm(event, request);
         event.setTitle(request.title().trim());
         event.setDescription(request.description().trim());
