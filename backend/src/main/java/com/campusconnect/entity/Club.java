@@ -63,7 +63,7 @@ public class Club {
 
     @Column(
             name = "contact_email",
-            nullable = false,
+            nullable = true,
             length = 150
     )
     private String contactEmail;

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { buildGoogleFormUrl } from "../../utils/googleForm";
 
 const categoryThemes = {
   WORKSHOP: {
@@ -45,6 +47,9 @@ export default function EventTicket({
   index = 0,
   featured = false,
 }) {
+  const { user } = useAuth();
+  const googleFormUrl = buildGoogleFormUrl(event, user);
+  const registrationClosed = ["COMPLETED", "CANCELLED"].includes(event.status) || new Date(event.registrationDeadline) <= new Date();
   const theme =
     categoryThemes[event.category] ?? categoryThemes.OTHER;
 
@@ -121,7 +126,7 @@ export default function EventTicket({
               {formatEnum(event.status ?? "UPCOMING")}
             </span>
 
-            {almostFull && (
+            {almostFull && !event.registrationFormUrl && (
               <span className="rounded-full bg-[#ffe1e8] px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#b33b67]">
                 Almost full
               </span>
@@ -163,7 +168,7 @@ export default function EventTicket({
 
             <MetaItem
               icon={Users}
-              text={`${availableSeats} seats available`}
+              text={`Capacity: ${event.capacity ?? "Not specified"}`}
             />
           </div>
 
@@ -178,6 +183,15 @@ export default function EventTicket({
         </div>
 
         <div className="flex items-center border-t border-[#eaddea] p-5 lg:border-l lg:border-t-0">
+          {googleFormUrl && !registrationClosed ? (
+            <a href={googleFormUrl} target="_blank" rel="noopener noreferrer" className="mr-2 rounded-xl border border-[#172B4D] px-4 py-3 text-sm font-semibold text-[#172B4D]">Register ↗</a>
+          ) : registrationClosed ? (
+            <span className="mr-2 text-xs text-slate-500">Registration closed</span>
+          ) : !event.registrationFormUrl ? (
+            <span className="mr-2 text-xs text-slate-500">Registration details coming soon</span>
+          ) : (
+            <span className="mr-2 text-xs text-slate-500">Registration closed</span>
+          )}
           <Link
             to={`/events/${event.id}`}
             className="flex h-12 min-w-36 items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(135deg,#501260,#7e367a,#b05994)] px-5 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(80,18,96,0.2)] transition hover:-translate-y-0.5"

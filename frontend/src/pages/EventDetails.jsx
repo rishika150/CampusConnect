@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, Clock3, MapPin, Users, Building2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { buildGoogleFormUrl } from "../utils/googleForm";
 import { fetchEventById, fetchMyEventRegistrations, registerForEvent, cancelEventRegistration } from "../services/eventService";
 
 function formatDate(value) {
@@ -13,6 +15,7 @@ function formatDate(value) {
 
 export default function EventDetails() {
   const { eventId } = useParams();
+  const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -49,6 +52,13 @@ export default function EventDetails() {
 
     return () => { active = false; controller.abort(); };
   }, [eventId, retryKey]);
+
+  const externalForm = Boolean(event?.registrationFormUrl);
+  const registrationClosed = Boolean(event && (
+    ["COMPLETED", "CANCELLED"].includes(event.status) ||
+    new Date(event.registrationDeadline) <= new Date()
+  ));
+  const googleFormUrl = buildGoogleFormUrl(event, user);
 
   async function changeRegistration() {
     if (registrationBusy || !registrationReady || !event) return;
@@ -100,17 +110,25 @@ export default function EventDetails() {
               <Info icon={Clock3} label="Ends" value={formatDate(event.endTime)} />
               <Info icon={MapPin} label="Venue" value={event.venue || "To be announced"} />
               <Info icon={Building2} label="Organized by" value={event.clubName || "CampusConnect"} />
-              <Info icon={Users} label="Available seats" value={String(event.availableSeats ?? Math.max(0, (event.capacity ?? 0) - (event.registeredCount ?? 0)))} />
+              <Info icon={Users} label="Capacity" value={String(event.capacity)} />
               <Info icon={CalendarDays} label="Registration deadline" value={formatDate(event.registrationDeadline)} />
             </div>
             <section className="rounded-xl border border-[#eaddea] bg-[#fbf5f9] p-5">
               <h2 className="text-lg font-bold text-[#28162f]">Your registration</h2>
-              <p className="mt-1 text-sm text-slate-600">{registered ? "You have a seat reserved." : "Reserve a seat while registration is open."}</p>
-              <button type="button" disabled={registrationBusy || !registrationReady || (!registered && (event.availableSeats <= 0 || event.status !== "UPCOMING" || new Date(event.registrationDeadline) <= new Date()))}
-                onClick={changeRegistration}
-                className="mt-4 rounded-xl bg-[#7e367a] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                {registrationBusy ? "Processing…" : registered ? "Cancel registration" : "Register for event"}
-              </button>
+              {registrationClosed ? (
+                <p className="mt-3 font-semibold text-slate-600">Registration closed</p>
+              ) : externalForm ? (
+                googleFormUrl ? <>
+                  <a href={googleFormUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-xl bg-[#172B4D] px-5 py-3 font-semibold text-white">Register via Google Forms ↗</a>
+                  <p className="mt-2 text-sm text-slate-600">Registration is managed by the organizer. Opening this form does not reserve a seat in CampusConnect.</p>
+                </> : <p role="alert" className="mt-3 text-rose-700">Registration link is invalid. Contact the organizer.</p>
+              ) : <>
+                <p className="mt-1 text-sm text-slate-600">{registered ? "You have a seat reserved." : "Reserve a seat through CampusConnect."}</p>
+                <button type="button" disabled={registrationBusy || !registrationReady || (!registered && (event.availableSeats <= 0 || event.status !== "UPCOMING"))}
+                  onClick={changeRegistration} className="mt-4 rounded-xl bg-[#172B4D] px-5 py-3 font-semibold text-white disabled:opacity-50">
+                  {registrationBusy ? "Processing…" : registered ? "Cancel registration" : "Register for event"}
+                </button>
+              </>}
               {registrationMessage && <p role="status" className="mt-3 text-sm text-slate-700">{registrationMessage}</p>}
               {!registrationReady && <button type="button" onClick={() => setRetryKey(key => key + 1)} className="mt-3 block text-sm font-semibold text-[#7e367a] underline">Retry registration status</button>}
             </section>

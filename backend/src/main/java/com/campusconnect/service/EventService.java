@@ -155,6 +155,7 @@ public class EventService {
                 club
         );
 
+        applyRegistrationForm(event, request);
         Event savedEvent = eventRepository.save(event);
 
         return EventResponse.from(savedEvent);
@@ -183,6 +184,11 @@ public class EventService {
             );
         }
 
+        if (event.getRegisteredCount() > 0 && event.getRegistrationFormUrl() == null
+                && request.registrationFormUrl() != null && !request.registrationFormUrl().isBlank()) {
+            throw new IllegalArgumentException("Cannot switch to Google Forms while native registrations exist");
+        }
+        applyRegistrationForm(event, request);
         event.setTitle(request.title().trim());
         event.setDescription(request.description().trim());
         event.setVenue(request.venue().trim());
@@ -478,4 +484,18 @@ public class EventService {
 
         return trimmed.isEmpty() ? null : trimmed;
     }
+    private void applyRegistrationForm(Event event, EventRequest request) {
+        String url = normalizeOptionalText(request.registrationFormUrl());
+        if (url != null && !(url.startsWith("https://forms.gle/") ||
+                url.startsWith("https://docs.google.com/forms/"))) {
+            throw new IllegalArgumentException("Registration form must use HTTPS Google Forms");
+        }
+        if (url == null && (request.formNameEntryId() != null || request.formEmailEntryId() != null)) {
+            throw new IllegalArgumentException("Form entry IDs require a Google Forms URL");
+        }
+        event.setRegistrationFormUrl(url);
+        event.setFormNameEntryId(request.formNameEntryId());
+        event.setFormEmailEntryId(request.formEmailEntryId());
+    }
+
 }

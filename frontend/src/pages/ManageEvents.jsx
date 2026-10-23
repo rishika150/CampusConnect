@@ -10,7 +10,7 @@ import ImportEventsCsv from "../components/events/ImportEventsCsv";
 const eventCategories = ["WORKSHOP", "HACKATHON", "SEMINAR", "TECH_TALK", "CULTURAL", "SPORTS", "NETWORKING", "OTHER"];
 const clubCategories = ["TECHNOLOGY", "CULTURAL", "SPORTS", "LITERARY", "MUSIC", "DANCE", "ENTREPRENEURSHIP", "SOCIAL_SERVICE", "ACADEMIC", "OTHER"];
 const inputStyle = "w-full rounded-xl border border-[#eaddea] bg-white px-4 py-3 text-[#28162f] outline-none focus:border-[#7e367a]";
-const initialEvent = { clubId: "", title: "", description: "", venue: "", startTime: "", endTime: "", registrationDeadline: "", capacity: 50, category: "WORKSHOP", bannerUrl: "" };
+const initialEvent = { clubId: "", title: "", description: "", venue: "", startTime: "", endTime: "", registrationDeadline: "", capacity: 50, category: "WORKSHOP", bannerUrl: "", registrationFormUrl: "", formNameEntryId: "", formEmailEntryId: "" };
 const initialClub = { name: "", description: "", category: "TECHNOLOGY", logoUrl: "", contactEmail: "" };
 
 function toInstant(value) {
@@ -83,7 +83,10 @@ export default function ManageEvents() {
       const payload = { ...eventForm, clubId: Number(eventForm.clubId), capacity: Number(eventForm.capacity),
         startTime: toInstant(eventForm.startTime), endTime: toInstant(eventForm.endTime),
         registrationDeadline: toInstant(eventForm.registrationDeadline),
-        bannerUrl: eventForm.bannerUrl.trim() || null };
+        bannerUrl: eventForm.bannerUrl.trim() || null,
+        registrationFormUrl: eventForm.registrationFormUrl.trim() || null,
+        formNameEntryId: eventForm.formNameEntryId.trim() || null,
+        formEmailEntryId: eventForm.formEmailEntryId.trim() || null };
       if (!(payload.registrationDeadline < payload.startTime && payload.startTime < payload.endTime))
         throw new Error("Registration must close before the event begins, and its end must follow its start.");
       const saved = await createEvent(payload);
@@ -130,6 +133,9 @@ export default function ManageEvents() {
           <Field label="Ends"><input required type="datetime-local" className={inputStyle} value={eventForm.endTime} onChange={e=>setEventForm({...eventForm,endTime:e.target.value})}/></Field>
           <Field label="Registration closes"><input required type="datetime-local" className={inputStyle} value={eventForm.registrationDeadline} onChange={e=>setEventForm({...eventForm,registrationDeadline:e.target.value})}/></Field>
           <Field label="Capacity"><input required type="number" min="1" max="100000" className={inputStyle} value={eventForm.capacity} onChange={e=>setEventForm({...eventForm,capacity:e.target.value})}/></Field>
+          <Field label="Google Form URL (optional)"><input type="url" maxLength={500} placeholder="https://forms.gle/..." className={inputStyle} value={eventForm.registrationFormUrl} onChange={e=>setEventForm({...eventForm,registrationFormUrl:e.target.value})}/></Field>
+          <Field label="Name prefill entry ID (optional)"><input placeholder="entry.123456" className={inputStyle} value={eventForm.formNameEntryId} onChange={e=>setEventForm({...eventForm,formNameEntryId:e.target.value})}/></Field>
+          <Field label="Email prefill entry ID (optional)"><input placeholder="entry.123456" className={inputStyle} value={eventForm.formEmailEntryId} onChange={e=>setEventForm({...eventForm,formEmailEntryId:e.target.value})}/></Field>
           <Field label="Banner URL (optional)"><input type="url" className={inputStyle} value={eventForm.bannerUrl} onChange={e=>setEventForm({...eventForm,bannerUrl:e.target.value})}/></Field>
           <div className="md:col-span-2"><Field label="Description"><textarea required minLength={20} maxLength={3000} rows={5} className={inputStyle} value={eventForm.description} onChange={e=>setEventForm({...eventForm,description:e.target.value})}/></Field></div>
           <button disabled={saving} className="rounded-xl bg-[#7e367a] px-6 py-3 font-bold text-white disabled:opacity-50 md:col-span-2">{saving ? "Publishing…" : "Publish event"}</button>

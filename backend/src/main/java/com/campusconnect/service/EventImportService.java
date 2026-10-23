@@ -95,7 +95,14 @@ public class EventImportService {
                     && event.getCapacity() == request.capacity() && event.getCategory() == request.category()
                     && java.util.Objects.equals(event.getBannerUrl(), normalizeBanner(request.bannerUrl())))
                 return 0;
-            eventService.updateEvent(event.getId(), request);
+            // CSV uploads do not include form metadata. Keep existing organizer links
+            // when unrelated event details are synchronized.
+            var preserved = new EventRequest(request.title(), request.description(),
+                    request.venue(), request.startTime(), request.endTime(),
+                    request.registrationDeadline(), request.capacity(), request.bannerUrl(),
+                    request.category(), request.clubId(), event.getRegistrationFormUrl(),
+                    event.getFormNameEntryId(), event.getFormEmailEntryId());
+            eventService.updateEvent(event.getId(), preserved);
             return 2;
         }
         var created = eventService.createEvent(request);
