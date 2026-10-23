@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  Settings2,
   Compass,
   LayoutDashboard,
   LogOut,
@@ -59,11 +60,12 @@ const groups = [
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const canManage = user?.role === "UNIVERSITY_ADMIN" || user?.role === "CLUB_ADMIN" || user?.role === "COORDINATOR";
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[258px] flex-col overflow-hidden bg-[linear-gradient(180deg,#35103f_0%,#501260_52%,#2a1235_100%)] text-white shadow-[18px_0_45px_rgba(80,18,96,0.14)] lg:flex">
-      <div className="flex h-20 items-center border-b border-white/10 px-6">
-        <div className="grid h-11 w-11 place-items-center rounded-[14px] bg-[linear-gradient(135deg,#e37dac,#ffb1c4)] font-black text-[#501260] shadow-lg shadow-black/10">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[258px] flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-900 lg:flex">
+      <div className="flex h-20 items-center border-b border-slate-200 px-6">
+        <div className="grid h-11 w-11 place-items-center rounded-[14px] bg-[#172B4D] font-black text-white">
           C
         </div>
 
@@ -71,14 +73,14 @@ export default function Sidebar() {
           <p className="truncate text-[17px] font-extrabold tracking-tight">
             CampusConnect
           </p>
-          <p className="text-xs text-white/55">Student network</p>
+          <p className="text-xs text-slate-500">Student network</p>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-4 py-6">
         {groups.map((group) => (
           <div key={group.label} className="mb-7">
-            <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
+            <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
               {group.label}
             </p>
 
@@ -91,15 +93,15 @@ export default function Sidebar() {
                     [
                       "group relative flex min-h-11 items-center gap-3 rounded-[13px] px-3 text-sm font-semibold transition duration-200",
                       isActive
-                        ? "bg-[linear-gradient(90deg,#7e367a,#e37dac)] text-white shadow-[0_10px_22px_rgba(0,0,0,0.16)]"
-                        : "text-white/68 hover:bg-white/8 hover:text-white",
+                        ? "bg-slate-100 text-[#172B4D]"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-[#172B4D]",
                     ].join(" ")
                   }
                 >
                   {({ isActive }) => (
                     <>
                       {isActive && (
-                        <span className="absolute -left-1 h-7 w-1 rounded-full bg-[#ffb1c4]" />
+                        <span className="absolute -left-1 h-7 w-1 rounded-full bg-[#47658A]" />
                       )}
 
                       <Icon
@@ -115,13 +117,13 @@ export default function Sidebar() {
             </div>
           </div>
         ))}
-        <NavLink to="/manage-events" className={({isActive}) => ["mx-3 mt-2 block rounded-xl px-3 py-3 text-sm font-bold",isActive ? "bg-[#7e367a] text-white" : "text-white/80 hover:bg-white/10"].join(" ")}>Manage events</NavLink>
+        {canManage && <NavLink to="/manage-events" className={({isActive}) => ["mx-3 mt-2 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold",isActive ? "bg-slate-100 text-[#172B4D]" : "text-slate-600 hover:bg-slate-50"].join(" ")}><Settings2 size={19} />Manage events</NavLink>}
       </nav>
 
       <div className="border-t border-white/10 p-4">
-        <div className="rounded-[16px] border border-white/10 bg-white/[0.07] p-3 backdrop-blur">
+        <div className="rounded-[16px] border border-white/10 bg-slate-50 p-3 backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[linear-gradient(135deg,#e37dac,#ffb1c4)] font-extrabold text-[#501260]">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-slate-200 font-extrabold text-[#172B4D]">
               {user?.fullName?.charAt(0)?.toUpperCase() ?? "S"}
             </div>
 
@@ -129,14 +131,14 @@ export default function Sidebar() {
               <p className="truncate text-sm font-bold">
                 {user?.fullName ?? "Student"}
               </p>
-              <p className="truncate text-xs text-white/50">
+              <p className="truncate text-xs text-slate-500">
                 {formatRole(user?.role)}
               </p>
             </div>
 
             <button
               onClick={logout}
-              className="grid h-9 w-9 place-items-center rounded-[10px] text-white/55 transition hover:bg-[#ffb1c4]/15 hover:text-[#ffb1c4]"
+              className="grid h-9 w-9 place-items-center rounded-[10px] text-slate-500 transition hover:bg-slate-200 hover:text-[#172B4D]"
               aria-label="Sign out"
             >
               <LogOut size={17} />
