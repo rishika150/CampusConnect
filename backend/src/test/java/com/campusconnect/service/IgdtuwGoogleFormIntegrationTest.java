@@ -81,6 +81,24 @@ class IgdtuwGoogleFormIntegrationTest {
     }
 
     @Test
+    void adminInvalidFormReturns400() throws Exception {
+        String email = UUID.randomUUID() + "@example.org";
+        String password = "Test-Admin-Password-9283!";
+        users.save(new User("Test Admin", email, passwordEncoder.encode(password), Role.UNIVERSITY_ADMIN));
+        String body = mapper.writeValueAsString(java.util.Map.of("email", email, "password", password));
+        String response = mvc.perform(post("/api/v1/auth/login")
+                .contentType(APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String token = mapper.readTree(response).path("data").path("accessToken").asText();
+        Long clubId = clubs.findByNameIgnoreCase("ACM Student Chapter").orElseThrow().getId();
+        mvc.perform(post("/api/v1/events")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request("https://invalid.example/form", clubId))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void externalFormEventsRejectNativeRegistration() {
         String key = UUID.randomUUID().toString();
         var club = clubs.save(new Club("Form Test " + key, "A dedicated club for external registration testing.",
