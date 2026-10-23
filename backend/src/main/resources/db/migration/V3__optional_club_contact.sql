@@ -1,0 +1,1 @@
+ALTER TABLE clubs ALTER COLUMN contact_email DROP NOT NULL;
