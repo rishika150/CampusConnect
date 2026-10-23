@@ -59,7 +59,7 @@ export default function ManageEvents() {
     async function load() {
       try {
         const [all, memberships] = await Promise.all([
-          admin ? fetchClubs({ size: 50 }) : Promise.resolve({ content: [] }),
+          admin ? fetchAllClubs() : Promise.resolve([]),
           fetchMyClubs(),
         ]);
         if (!active) return;
