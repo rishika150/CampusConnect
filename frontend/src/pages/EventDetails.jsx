@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, Clock3, MapPin, Users, Building2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { buildGoogleFormUrl } from "../utils/googleForm";
 import { fetchEventById, fetchMyEventRegistrations, registerForEvent, cancelEventRegistration } from "../services/eventService";
 
 function formatDate(value) {
@@ -15,8 +16,6 @@ function formatDate(value) {
 export default function EventDetails() {
   const { eventId } = useParams();
   const { user } = useAuth();
-  const userName = user?.fullName ?? "";
-  const userEmail = user?.email ?? "";
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -59,21 +58,7 @@ export default function EventDetails() {
     ["COMPLETED", "CANCELLED"].includes(event.status) ||
     new Date(event.registrationDeadline) <= new Date()
   ));
-  const googleFormUrl = (() => {
-    if (!externalForm) return null;
-    try {
-      const url = new URL(event.registrationFormUrl);
-      if (url.protocol !== "https:" || !["forms.gle", "docs.google.com"].includes(url.hostname)) return null;
-      if (url.hostname === "docs.google.com" && url.pathname.startsWith("/forms/")) {
-        // Entry IDs are supplied by the organizer, never guessed.
-        const rawName = event.formNameEntryId;
-        const rawEmail = event.formEmailEntryId;
-        if (rawName && /^entry\\.[0-9]+$/.test(rawName)) url.searchParams.set(rawName, userName);
-        if (rawEmail && /^entry\\.[0-9]+$/.test(rawEmail)) url.searchParams.set(rawEmail, userEmail);
-      }
-      return url.href;
-    } catch { return null; }
-  })();
+  const googleFormUrl = buildGoogleFormUrl(event, user);
 
   async function changeRegistration() {
     if (registrationBusy || !registrationReady || !event) return;
