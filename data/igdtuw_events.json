@@ -1,0 +1,45 @@
+[
+  {
+    "title": "GDG on Campus Orientation 2026–27",
+    "club": "GDG on Campus IGDTUW",
+    "date": "2026-09-30",
+    "startTime": "2026-09-30T12:00:00+05:30",
+    "endTime": "2026-09-30T15:00:00+05:30",
+    "venue": "IGDTUW Auditorium",
+    "description": "Campus orientation introducing developer community learning opportunities and upcoming activities.",
+    "category": "TECH_TALK",
+    "registrationFormUrl": null,
+    "sourceUrl": "https://in.linkedin.com/company/dscigdtuw",
+    "verified": true,
+    "status": "COMPLETED"
+  },
+  {
+    "title": "CodeBenders Orientation 2026",
+    "club": "CodeBenders",
+    "date": "2026-09-29",
+    "startTime": "2026-09-29T10:00:00+05:30",
+    "endTime": "2026-09-29T12:00:00+05:30",
+    "venue": "Seminar Hall, IGDTUW",
+    "description": "Student coding community orientation with interactive activities and opportunities to participate.",
+    "category": "OTHER",
+    "registrationFormUrl": null,
+    "sourceUrl": "https://in.linkedin.com/in/codebenders-igdtuw",
+    "verified": true,
+    "status": "COMPLETED"
+  },
+  {
+    "title": "AWS Student Community Day New Delhi 2026",
+    "club": "AWS Student Builder Group IGDTUW",
+    "date": "2026-10-30",
+    "startTime": "2026-10-30T10:00:00+05:30",
+    "endTime": null,
+    "venue": "IGDTUW, New Delhi",
+    "description": "Cloud learning event with talks, workshops and networking. Organizer registration uses a ticketing partner, not a verified Google Form.",
+    "category": "TECH_TALK",
+    "registrationFormUrl": null,
+    "sourceUrl": "https://in.linkedin.com/company/aws-student-builder-group-igdtuw",
+    "verified": false,
+    "status": "UPCOMING",
+    "uncertainty": "End time not publicly confirmed; third-party ticket registration is outside supported Google Forms URLs."
+  }
+]
