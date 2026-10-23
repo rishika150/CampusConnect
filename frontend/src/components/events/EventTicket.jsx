@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { buildGoogleFormUrl } from "../../utils/googleForm";
 
 const categoryThemes = {
   WORKSHOP: {
@@ -45,6 +47,9 @@ export default function EventTicket({
   index = 0,
   featured = false,
 }) {
+  const { user } = useAuth();
+  const googleFormUrl = buildGoogleFormUrl(event, user);
+  const registrationClosed = ["COMPLETED", "CANCELLED"].includes(event.status) || new Date(event.registrationDeadline) <= new Date();
   const theme =
     categoryThemes[event.category] ?? categoryThemes.OTHER;
 
@@ -178,8 +183,10 @@ export default function EventTicket({
         </div>
 
         <div className="flex items-center border-t border-[#eaddea] p-5 lg:border-l lg:border-t-0">
-          {event.registrationFormUrl && event.status !== "COMPLETED" && event.status !== "CANCELLED" && new Date(event.registrationDeadline) > new Date() ? (
-            <a href={event.registrationFormUrl} target="_blank" rel="noopener noreferrer" className="mr-2 rounded-xl border border-[#172B4D] px-4 py-3 text-sm font-semibold text-[#172B4D]">Register ↗</a>
+          {googleFormUrl && !registrationClosed ? (
+            <a href={googleFormUrl} target="_blank" rel="noopener noreferrer" className="mr-2 rounded-xl border border-[#172B4D] px-4 py-3 text-sm font-semibold text-[#172B4D]">Register ↗</a>
+          ) : registrationClosed ? (
+            <span className="mr-2 text-xs text-slate-500">Registration closed</span>
           ) : !event.registrationFormUrl ? (
             <span className="mr-2 text-xs text-slate-500">Registration details coming soon</span>
           ) : (
