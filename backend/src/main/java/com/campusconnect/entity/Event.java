@@ -32,6 +32,22 @@ import java.time.Instant;
 )
 public class Event {
 
+    @Column(name = "registration_form_url", length = 500)
+    private String registrationFormUrl;
+
+    @Column(name = "form_name_entry_id", length = 40)
+    private String formNameEntryId;
+
+    @Column(name = "form_email_entry_id", length = 40)
+    private String formEmailEntryId;
+
+    public String getRegistrationFormUrl() { return registrationFormUrl; }
+    public void setRegistrationFormUrl(String url) { this.registrationFormUrl = url; }
+    public String getFormNameEntryId() { return formNameEntryId; }
+    public void setFormNameEntryId(String id) { this.formNameEntryId = id; }
+    public String getFormEmailEntryId() { return formEmailEntryId; }
+    public void setFormEmailEntryId(String id) { this.formEmailEntryId = id; }
+
     @Column(name = "source_key", length = 300, unique = true)
     private String sourceKey;
 
