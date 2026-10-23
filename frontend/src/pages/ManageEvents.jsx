@@ -19,6 +19,17 @@ function toInstant(value) {
   return result.toISOString();
 }
 
+async function fetchAllClubs() {
+  const first = await fetchClubs({ page: 0, size: 50 });
+  const totalPages = first.totalPages ?? 1;
+  const all = [...(first.content ?? [])];
+  for (let page = 1; page < totalPages; page += 1) {
+    const next = await fetchClubs({ page, size: 50 });
+    all.push(...(next.content ?? []));
+  }
+  return all;
+}
+
 export default function ManageEvents() {
   const { user } = useAuth();
   const admin = user?.role === "UNIVERSITY_ADMIN";
@@ -33,11 +44,11 @@ export default function ManageEvents() {
 
   async function refreshClubs() {
     const [allClubs, memberships] = await Promise.all([
-      admin ? fetchClubs({ size: 50 }) : Promise.resolve({ content: [] }),
+      admin ? fetchAllClubs() : Promise.resolve([]),
       fetchMyClubs(),
     ]);
     const allowed = admin
-      ? allClubs.content || []
+      ? allClubs
       : memberships.filter((m) => ["COORDINATOR", "ADMIN"].includes(m.membershipRole)).map((m) => m.club);
     setClubs(allowed);
     setEventForm((current) => ({ ...current, clubId: allowed.some((c) => String(c.id) === String(current.clubId)) ? current.clubId : String(allowed[0]?.id ?? "") }));
@@ -52,7 +63,7 @@ export default function ManageEvents() {
           fetchMyClubs(),
         ]);
         if (!active) return;
-        const allowed = admin ? all.content || [] : memberships.filter((m) => ["COORDINATOR", "ADMIN"].includes(m.membershipRole)).map((m) => m.club);
+        const allowed = admin ? all : memberships.filter((m) => ["COORDINATOR", "ADMIN"].includes(m.membershipRole)).map((m) => m.club);
         setClubs(allowed);
         setEventForm((current) => ({ ...current, clubId: String(allowed[0]?.id ?? "") }));
       } catch {
