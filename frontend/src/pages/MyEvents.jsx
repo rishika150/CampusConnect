@@ -8,15 +8,18 @@ export default function MyEvents() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setError("");
     fetchMyEventRegistrations()
       .then((data) => { if (active) setRegistrations(data); })
-      .catch(() => { if (active) setError("Could not load your event registrations."); })
+      .catch(() => { if (active) { setRegistrations([]); setError("Could not load your event registrations."); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [refreshKey]);
 
   async function cancel(eventId) {
     if (busy !== null) return;
@@ -40,9 +43,10 @@ export default function MyEvents() {
         <p className="mt-2 text-slate-600">Manage the events you have registered for.</p>
       </header>
       {error && <div role="alert" className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800">{error}</div>}
+      {!loading && error && <button type="button" onClick={() => setRefreshKey(key => key + 1)} className="mb-5 rounded-xl border border-[#eaddea] bg-white px-4 py-2 font-semibold">Retry loading registrations</button>}
       {loading ? (
         <div role="status" className="rounded-2xl bg-white p-8 text-slate-600">Loading registrations…</div>
-      ) : registrations.length === 0 ? (
+      ) : error && registrations.length === 0 ? null : registrations.length === 0 ? (
         <div className="rounded-3xl border border-[#eaddea] bg-white p-10 text-center">
           <CalendarDays className="mx-auto text-[#7e367a]" size={36} />
           <h2 className="mt-4 text-xl font-bold text-[#28162f]">No registered events yet</h2>
