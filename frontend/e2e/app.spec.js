@@ -73,9 +73,9 @@ test("student navigation has accurate headings and no inactive global controls",
     status: 200, contentType: "application/json", body: JSON.stringify({ data: [] })
   }));
   await page.goto("/my-events");
-  await expect(page.locator("header h1")).toHaveText("My Events");
+  await expect(page.locator("header").first().locator("h1")).toHaveText("My Events");
   await expect(page.getByPlaceholder("Search clubs and events")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Manage events" })).toHaveCount(0);
   await page.goto("/events/123");
-  await expect(page.locator("header h1")).toHaveText("Event Details");
+  await expect(page.locator("header").first().locator("h1")).toHaveText("Event Details");
 });
