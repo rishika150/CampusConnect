@@ -101,6 +101,16 @@ test.describe("real backend user journeys", () => {
     const response = await request.get(`${backend}/events?search=${encodeURIComponent(`Browser Event ${suffix}`)}`);
     expect(response.ok()).toBeTruthy();
     expect((await response.json()).data.content.some(e => e.title === `Browser Event ${suffix}`)).toBeTruthy();
+    const management = page.locator("section").filter({ has: page.getByRole("heading", { name: "Manage published events" }) });
+    await expect(management.getByText(`Browser Event ${suffix}`)).toBeVisible();
+    await management.getByRole("button", { name: "Edit" }).click();
+    await management.getByLabel("Capacity").fill("60");
+    await management.getByRole("button", { name: "Save changes" }).click();
+    await expect(management.getByText("Event updated successfully.")).toBeVisible();
+    const updated = await request.get(`${backend}/events?search=${encodeURIComponent(`Browser Event ${suffix}`)}`);
+    expect(updated.ok()).toBeTruthy();
+    expect((await updated.json()).data.content.find(e => e.title === `Browser Event ${suffix}`).capacity).toBe(60);
+
   });
 });
 
