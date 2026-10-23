@@ -61,7 +61,9 @@ public record EventRequest(
 
         @NotNull(message = "Club ID is required")
         Long clubId,
-        @Size(max = 500) String registrationFormUrl,
+        @Size(max = 500)
+        @Pattern(regexp = "^(|https://forms\\.gle/[^ ]+|https://docs\\.google\\.com/forms/[^ ]+)$", message = "Registration link must use HTTPS Google Forms")
+        String registrationFormUrl,
         @Pattern(regexp = "entry\\.[0-9]+", message = "Name entry ID must look like entry.123456") String formNameEntryId,
         @Pattern(regexp = "entry\\.[0-9]+", message = "Email entry ID must look like entry.123456") String formEmailEntryId
 ) {
