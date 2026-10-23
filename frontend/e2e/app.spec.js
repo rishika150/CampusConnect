@@ -54,3 +54,28 @@ test("failed My Events request offers retry without showing an empty account", a
   await page.getByRole("button", { name: "Retry loading registrations" }).click();
   await expect(page.getByRole("heading", { name: "No registered events yet" })).toBeVisible();
 });
+
+test("student navigation has accurate headings and no inactive global controls", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("campusconnect_token", "test-token");
+    localStorage.setItem("campusconnect_user", JSON.stringify({
+      id: 123, fullName: "Test Student", email: "student@example.org", role: "STUDENT"
+    }));
+  });
+  await page.route("**/api/v1/users/me", route => route.fulfill({
+    status: 200, contentType: "application/json",
+    body: JSON.stringify({ data: { id: 123, fullName: "Test Student", email: "student@example.org", role: "STUDENT" } })
+  }));
+  await page.route("**/api/v1/clubs/me", route => route.fulfill({
+    status: 200, contentType: "application/json", body: JSON.stringify({ data: [] })
+  }));
+  await page.route("**/api/v1/registrations/me", route => route.fulfill({
+    status: 200, contentType: "application/json", body: JSON.stringify({ data: [] })
+  }));
+  await page.goto("/my-events");
+  await expect(page.locator("header h1")).toHaveText("My Events");
+  await expect(page.getByPlaceholder("Search clubs and events")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Manage events" })).toHaveCount(0);
+  await page.goto("/events/123");
+  await expect(page.locator("header h1")).toHaveText("Event Details");
+});
