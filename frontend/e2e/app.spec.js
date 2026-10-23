@@ -40,17 +40,17 @@ test("failed My Events request offers retry without showing an empty account", a
     status: 200, contentType: "application/json",
     body: JSON.stringify({ data: { id: 123, fullName: "Test Student", email: "student@example.org", role: "STUDENT" } })
   }));
-  let requests = 0;
+  let recover = false;
   await page.route("**/api/v1/registrations/me", route => {
-    requests += 1;
     return route.fulfill({
-      status: requests === 1 ? 503 : 200, contentType: "application/json",
-      body: requests === 1 ? JSON.stringify({ message: "Service unavailable" }) : JSON.stringify({ data: [] })
+      status: recover ? 200 : 503, contentType: "application/json",
+      body: recover ? JSON.stringify({ data: [] }) : JSON.stringify({ message: "Service unavailable" })
     });
   });
   await page.goto("/my-events");
   await expect(page.getByRole("button", { name: "Retry loading registrations" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "No registered events yet" })).toHaveCount(0);
+  recover = true;
   await page.getByRole("button", { name: "Retry loading registrations" }).click();
   await expect(page.getByRole("heading", { name: "No registered events yet" })).toBeVisible();
 });
