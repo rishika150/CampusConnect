@@ -165,9 +165,7 @@ public class EventService {
             Long eventId,
             EventRequest request
     ) {
-        validateTimes(request);
-
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findActiveByIdForUpdate(eventId)
                 .orElseThrow(() ->
                         new EventNotFoundException(eventId)
                 );
@@ -176,6 +174,7 @@ public class EventService {
             throw new EventNotFoundException(eventId);
         }
 
+        validateUpdateTimes(event, request);
         Club club = resolveActiveClub(request.clubId());
 
         if (request.capacity() < event.getRegisteredCount()) {
@@ -261,6 +260,23 @@ public class EventService {
             throw new InvalidEventTimeException(
                     "Registration deadline must be in the future"
             );
+        }
+    }
+
+    private void validateUpdateTimes(Event event, EventRequest request) {
+        Instant now = Instant.now();
+        if (!request.endTime().isAfter(request.startTime())) {
+            throw new InvalidEventTimeException("Event end time must be after the start time");
+        }
+        if (!request.registrationDeadline().isBefore(request.startTime())) {
+            throw new InvalidEventTimeException("Registration deadline must be before the event start time");
+        }
+        if (!request.startTime().equals(event.getStartTime()) && !request.startTime().isAfter(now)) {
+            throw new InvalidEventTimeException("A changed event start time must be in the future");
+        }
+        if (!request.registrationDeadline().equals(event.getRegistrationDeadline())
+                && !request.registrationDeadline().isAfter(now)) {
+            throw new InvalidEventTimeException("A changed registration deadline must be in the future");
         }
     }
 

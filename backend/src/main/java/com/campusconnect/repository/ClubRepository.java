@@ -3,6 +3,7 @@ package com.campusconnect.repository;
 import com.campusconnect.entity.Club;
 import com.campusconnect.entity.ClubCategory;
 import org.springframework.data.domain.Page;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 public interface ClubRepository extends JpaRepository<Club, Long> {
 
     boolean existsByNameIgnoreCase(String name);
+
+    Optional<Club> findByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(
             String name,

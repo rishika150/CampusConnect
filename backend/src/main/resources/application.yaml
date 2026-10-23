@@ -8,10 +8,14 @@ spring:
     password: ${DB_PASSWORD:campusconnect_dev_password}
     driver-class-name: org.postgresql.Driver
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -22,7 +26,7 @@ spring:
     time-zone: UTC
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 springdoc:
   api-docs:
@@ -41,5 +45,13 @@ logging:
 application:
   security:
     jwt:
-      secret: ${JWT_SECRET:VGVtcG9yYXJ5RGV2ZWxvcG1lbnRTZWNyZXRLZXlGb3JDYW1wdXNDb25uZWN0MjAyNg==}
+      secret: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION:86400000}
+
+campusconnect:
+  sheets:
+    enabled: ${SHEET_SYNC_ENABLED:false}
+    url: ${SHEET_CSV_URL:}
+    source: ${SHEET_SOURCE:}
+    interval-ms: ${SHEET_SYNC_INTERVAL_MS:1800000}
+    initial-delay-ms: ${SHEET_SYNC_INITIAL_DELAY_MS:30000}

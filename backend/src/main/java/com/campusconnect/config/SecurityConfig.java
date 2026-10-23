@@ -1,12 +1,14 @@
 package com.campusconnect.config;
+import com.campusconnect.security.JwtAuthenticationFilter;
+import com.campusconnect.security.RestAccessDeniedHandler;
+import com.campusconnect.security.RestAuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
-import com.campusconnect.security.JwtAuthenticationFilter;
-import com.campusconnect.security.RestAccessDeniedHandler;
-import com.campusconnect.security.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,19 +24,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(@Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174}") String allowedOrigins) {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:5174"
-        ));
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim).filter(s -> !s.isBlank()).toList();
+        if (origins.isEmpty() || origins.stream().anyMatch(origin ->
+                "*".equals(origin) || !(origin.startsWith("http://") || origin.startsWith("https://")))) {
+            throw new IllegalArgumentException("CORS_ALLOWED_ORIGINS must specify explicit HTTP(S) origins");
+        }
+        configuration.setAllowedOrigins(origins);
 
         configuration.setAllowedMethods(List.of(
                 "GET",
@@ -49,7 +53,8 @@ public class SecurityConfig {
                 "Content-Type"
         ));
 
-        configuration.setAllowCredentials(true);
+        // Bearer tokens are sent in Authorization headers; cross-origin cookies are not used.
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
@@ -93,6 +98,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         )
                         .permitAll()
+
+                        .requestMatchers("/api/v1/clubs/me", "/api/v1/registrations/**").authenticated()
+                        .requestMatchers("/api/v1/events/*/registrations/**").authenticated()
 
                         .requestMatchers(
                                 HttpMethod.GET,

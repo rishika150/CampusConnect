@@ -43,5 +43,7 @@ public interface ClubMembershipRepository
 
     long countByClubId(Long clubId);
 
+    List<ClubMembership> findAllByClubIdOrderByJoinedAtAsc(Long clubId);
+
     void deleteAllByClubId(Long clubId);
 }

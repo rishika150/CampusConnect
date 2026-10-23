@@ -11,37 +11,42 @@ export default function Events() {
   const [status, setStatus] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalEvents, setTotalEvents] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadEvents();
+    let active = true;
+    const timer = setTimeout(async () => {
+      if (!active) return;
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetchEvents({
+          page, size: 12, search: search.trim(),
+          category: category === "ALL" ? undefined : category,
+          status: status === "ALL" ? undefined : status,
+        });
+        if (!active) return;
+        setEvents(response?.content ?? []);
+        setTotalPages(response?.totalPages ?? 0);
+        setTotalEvents(response?.totalElements ?? 0);
+      } catch (requestError) {
+        if (!active) return;
+        setEvents([]);
+        setTotalPages(0);
+        setTotalEvents(0);
+        setError(requestError.response?.data?.message ?? "Unable to load events right now.");
+      } finally {
+        if (active) setLoading(false);
+      }
     }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [search, category, status, page]);
 
-    return () => clearTimeout(timer);
-  }, [search, category, status]);
-
-  async function loadEvents() {
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetchEvents({
-        page: 0,
-        size: 30,
-        search: search.trim(),
-        category: category === "ALL" ? undefined : category,
-        status: status === "ALL" ? undefined : status,
-      });
-
-      setEvents(response?.content ?? []);
-    } catch (requestError) {
-      setError(
-        requestError.response?.data?.message ??
-          "Unable to load events right now.",
-      );
-    } finally {
-      setLoading(false);
-    }
+  function updateFilters(setter, value) {
+    setPage(0);
+    setter(value);
   }
 
   const sortedEvents = useMemo(
@@ -57,12 +62,12 @@ export default function Events() {
     <div className="mx-auto max-w-[1500px]">
       <EventHero
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => updateFilters(setSearch, value)}
         category={category}
-        onCategoryChange={setCategory}
+        onCategoryChange={(value) => updateFilters(setCategory, value)}
         status={status}
-        onStatusChange={setStatus}
-        totalEvents={events.length}
+        onStatusChange={(value) => updateFilters(setStatus, value)}
+        totalEvents={totalEvents}
       />
 
       {error && (
@@ -77,7 +82,7 @@ export default function Events() {
           Array.from({ length: 4 }).map((_, index) => (
             <EventSkeleton key={index} />
           ))
-        ) : sortedEvents.length ? (
+        ) : error ? null : sortedEvents.length ? (
           sortedEvents.map((event, index) => (
             <EventTicket
               key={event.id}
@@ -90,6 +95,13 @@ export default function Events() {
           <EmptyEvents />
         )}
       </section>
+      {!loading && !error && totalPages > 1 && (
+        <nav aria-label="Event pages" className="mt-8 flex items-center justify-center gap-4">
+          <button type="button" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-xl border px-4 py-2 disabled:opacity-40">Previous</button>
+          <span>Page {page + 1} of {totalPages}</span>
+          <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage(p => p + 1)} className="rounded-xl border px-4 py-2 disabled:opacity-40">Next</button>
+        </nav>
+      )}
     </div>
   );
 }

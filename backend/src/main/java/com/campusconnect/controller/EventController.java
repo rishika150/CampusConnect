@@ -105,7 +105,7 @@ public class EventController {
     }
 
     @PostMapping("/events")
-    @PreAuthorize("hasRole('UNIVERSITY_ADMIN')")
+    @PreAuthorize("@clubAuthorization.canManage(#request.clubId(), authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create a new event")
     public ResponseEntity<ApiResponse<EventResponse>> createEvent(
@@ -122,7 +122,7 @@ public class EventController {
     }
 
     @PutMapping("/events/{eventId}")
-    @PreAuthorize("hasRole('UNIVERSITY_ADMIN')")
+    @PreAuthorize("@clubAuthorization.canMoveEvent(#eventId, #request.clubId(), authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update an event")
     public ResponseEntity<ApiResponse<EventResponse>> updateEvent(
@@ -141,7 +141,7 @@ public class EventController {
     }
 
     @DeleteMapping("/events/{eventId}")
-    @PreAuthorize("hasRole('UNIVERSITY_ADMIN')")
+    @PreAuthorize("@clubAuthorization.canManageEvent(#eventId, authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Soft-delete an event")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(

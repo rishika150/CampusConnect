@@ -32,6 +32,12 @@ import java.time.Instant;
 )
 public class Event {
 
+    @Column(name = "source_key", length = 300, unique = true)
+    private String sourceKey;
+
+    public String getSourceKey() { return sourceKey; }
+    public void setSourceKey(String sourceKey) { this.sourceKey = sourceKey; }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
