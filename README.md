@@ -347,7 +347,7 @@ Schema changes use Flyway `V2__event_google_form_metadata.sql`. Existing registr
 
 ## IGDTUW public-source dataset
 
-`data/igdtuw_clubs.json` lists **21 publicly documented groups** and `data/igdtuw_events.json` records **3 researched announcements** as of 23 October 2026. `verified` flags refer to evidence for the recorded fields; they do **not** establish current club membership activity. One upcoming event has an unknown end time and is marked unverified. Sources and limitations are recorded in `data/SOURCES.md`.
+`data/igdtuw_clubs.json` lists **21 publicly documented groups** and `data/igdtuw_events.json` records **5 researched announcements** as of 23 October 2026. `verified` flags refer to evidence for the recorded fields; they do **not** establish current club membership activity. One upcoming event has an unknown end time and is marked unverified. Sources and limitations are recorded in `data/SOURCES.md`.
 
 The `demo` Spring profile loads the copied datasets from `backend/src/main/resources/demo/`. It imports verified clubs and historical events with sufficient scheduling information, skips unknown/unverified event times, and keeps the separately labelled fictional rolling demo events so the UI stays populated. Sourced records and fictional demos must not be represented as confirmed live university announcements.
 
