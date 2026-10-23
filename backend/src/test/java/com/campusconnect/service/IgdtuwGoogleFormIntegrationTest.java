@@ -14,6 +14,8 @@ import java.time.Instant;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -26,6 +28,9 @@ class IgdtuwGoogleFormIntegrationTest {
     @Autowired EventRepository events;
     @Autowired EventService eventService;
     @Autowired EventRegistrationService registrationService;
+    @Autowired UserRepository users;
+    @Autowired org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    @Autowired com.fasterxml.jackson.databind.ObjectMapper mapper;
 
     private EventRequest request(String url, Long clubId) {
         Instant start = Instant.now().plusSeconds(86400);
@@ -53,6 +58,26 @@ class IgdtuwGoogleFormIntegrationTest {
         assertTrue(clubs.findByNameIgnoreCase("ACM Student Chapter").isPresent());
         var club = clubs.findByNameIgnoreCase("GDG on Campus IGDTUW").orElseThrow();
         assertTrue(events.existsByClubIdAndTitle(club.getId(), "GDG on Campus Orientation 2026–27"));
+    }
+
+    @Test
+    void authenticatedStudentCannotPublishEvents() throws Exception {
+        String email = UUID.randomUUID() + "@example.org";
+        String password = "Test-Password-9283!";
+        users.save(new User("Student Tester", email, passwordEncoder.encode(password), Role.STUDENT));
+        String body = mapper.writeValueAsString(java.util.Map.of("email", email, "password", password));
+        String response = mvc.perform(post("/api/v1/auth/login")
+                .contentType(APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String token = mapper.readTree(response).path("data").path("accessToken").asText();
+        assertFalse(token.isBlank());
+        Instant start = Instant.now().plusSeconds(172800);
+        Long clubId = clubs.findByNameIgnoreCase("ACM Student Chapter").orElseThrow().getId();
+        var request = request("https://forms.gle/abc", clubId);
+        mvc.perform(post("/api/v1/events")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON).content(mapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
