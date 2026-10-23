@@ -1,6 +1,6 @@
 # CampusConnect
 
-A modern full-stack campus community platform that enables students to discover clubs, join communities, explore campus events, and manage their student profile through a secure, responsive, and production-style web application.
+A full-stack campus community MVP for club membership, event discovery, registration and role-scoped event management. Built with React, Spring Boot and PostgreSQL. Public production deployment is not yet complete.
 
 ---
 
@@ -268,13 +268,10 @@ VITE_API_BASE_URL=http://localhost:8080/api/v1
 
 # Future Enhancements
 
-- Event Registration
-- Club Admin Portal
 - Announcement System
 - Notifications
 - Calendar Integration
 - QR Event Check-in
-- Admin Dashboard
 
 ---
 
@@ -294,7 +291,7 @@ The optional Spring profile `demo` seeds **8 fictional clubs and 32 example even
 
 ## Admin event CSV import
 
-A university administrator can upload a UTF-8 CSV at `POST /api/v1/admin/import/events/csv` (multipart field `file`) or through the management workspace. Required headers: `externalId,clubId,title,description,venue,startTime,endTime,registrationDeadline,capacity,category`. Optional: `bannerUrl`. All dates must be ISO-8601 UTC instants, e.g. `2026-12-01T10:00:00Z`. The upload is limited to 1 MB and processing is capped at 200 rows. Each row is validated and reports errors. Repeated imports skip rows matching an existing club ID, case-insensitive event title, and exact start timestamp. This is basic deduplication, not yet a concurrency-safe external-ID upsert.
+A university administrator can upload a UTF-8 CSV at `POST /api/v1/admin/import/events/csv` (multipart field `file`) or through the management workspace. Required headers: `externalId,clubId,title,description,venue,startTime,endTime,registrationDeadline,capacity,category`. Optional: `bannerUrl`. All dates must be ISO-8601 UTC instants, e.g. `2026-12-01T10:00:00Z`. The upload is limited to 1 MB and processing is capped at 200 rows. Each row is validated and reports errors. Repeated imports skip rows matching an existing club ID, case-insensitive event title, and exact start timestamp. Imports use source-scoped external IDs and update existing records. A concurrent first import of the same previously nonexistent external ID has not been explicitly race-tested; the database uniqueness constraint prevents duplicate source keys, but graceful conflict handling still needs verification.
 
 
 ## Google Sheets event sync (no paid API)
@@ -303,7 +300,7 @@ University admins can publish an events spreadsheet as CSV and submit the **dire
 
 The CSV now requires `externalId` plus `clubId,title,description,venue,startTime,endTime,registrationDeadline,capacity,category`. Optional: `bannerUrl`. Use a permanent `externalId` per event and a consistent **source name** per spreadsheet, for example `university-events`. Repeated imports skip unchanged events and update changed event details without creating a second row. The same behavior is available for uploaded CSVs with a source name.
 
-Sync endpoint: `POST /api/v1/admin/import/events/google-sheet`, JSON: `{"url":"https://docs.google.com/spreadsheets/d/.../export?format=csv","source":"university-events"}`. Only university admins can call it. Sync runs **on demand**; there is no background schedule yet. Changes to event dates must satisfy normal backend validation, and cancelled events are not resurrected. This path is intended for reviewed public data, not sensitive student information.
+Sync endpoint: `POST /api/v1/admin/import/events/google-sheet`, JSON: `{"url":"https://docs.google.com/spreadsheets/d/.../export?format=csv","source":"university-events"}`. Only university admins can call it. Manual synchronization runs **on demand**; an optional in-process scheduled mode is documented below and disabled by default. Changes to event dates must satisfy normal backend validation, and cancelled events are not resurrected. This path is intended for reviewed public data, not sensitive student information.
 
 
 ### Optional scheduled Google Sheets synchronization
@@ -324,4 +321,20 @@ A clean PostgreSQL database now uses Flyway `V1__initial_schema.sql` to create t
 
 For a **new, empty database**, export `POSTGRES_PASSWORD`, a random Base64-encoded `JWT_SECRET` (at least 32 decoded bytes), and `PUBLIC_ORIGIN` (your eventual HTTPS origin), then run `docker compose -f compose.prod.yml up --build -d`. Keep secrets outside version control and back up the persistent database volume. This example does not provision TLS, a public domain, backups, alerting or a container registry. Put a secure HTTPS reverse proxy in front of port 8088 before exposing it publicly. Do not use demo or default credentials in production.
 
-The production Spring profile validates Flyway-managed schema and disables Swagger/OpenAPI. The new CI check validates the Compose specification but **does not perform a container build or public deployment**. Existing databases need a reviewed Flyway baseline before switching to this configuration.
+The production Spring profile validates Flyway-managed schema and disables Swagger/OpenAPI. CI validates the Compose specification, builds both production images, starts the full PostgreSQL/backend/Nginx stack, checks frontend and API availability, and verifies API recovery after a backend restart. CI does **not** provision a public HTTPS deployment. Existing databases need a reviewed Flyway baseline before switching to this configuration.
+
+
+## Testing and verification
+
+From `backend/`, run `./mvnw clean verify` with a reachable PostgreSQL database and the `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `JWT_SECRET` environment variables configured. The Spring Boot integration tests use the configured database and Flyway migrations.
+
+From `frontend/`, run `npm ci`, `npm run lint`, and `npm run build`. Browser tests run with `npx playwright test` after installing Playwright Chromium and its dependencies. The browser-integration suite additionally requires a running backend, PostgreSQL, a bootstrap administrator, and `E2E_REAL_BACKEND=true`; see `.github/workflows/ci.yml` for the exact reproducible CI configuration.
+
+The six CI jobs are: `backend`, `frontend`, `browser`, `browser-integration`, `deployment-config`, and `stack-smoke`. Green CI is evidence of automated checks, not a guarantee of complete accessibility, mobile-device compatibility, or public HTTPS readiness.
+
+## MVP limitations and final acceptance
+
+- JWTs currently reside in browser `localStorage`. A production security review should assess XSS exposure and consider safer session storage.
+- Simultaneous first-time imports with an identical external ID have not been explicitly tested for graceful conflict handling.
+- The supplied Compose deployment has persistent PostgreSQL storage, but public TLS, domain setup, automated backups, restore drills, monitoring, and mobile/accessibility acceptance are not included.
+- The `demo` profile contains fictional clubs and events, not actual university announcements.
