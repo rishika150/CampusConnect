@@ -334,3 +334,25 @@ The six CI jobs are: `backend`, `frontend`, `browser`, `browser-integration`, `d
 - Simultaneous first-time imports with an identical external ID have not been explicitly tested for graceful conflict handling.
 - The supplied Compose deployment has persistent PostgreSQL storage, but public TLS, domain setup, automated backups, restore drills, monitoring, and mobile/accessibility acceptance are not included.
 - The `demo` profile contains fictional clubs and events, not actual university announcements.
+
+## Google Forms registration (external organizer-managed mode)
+
+Authorized event managers can create or edit an event in **Manage Events** and paste an optional HTTPS form URL. Accepted links start with `https://forms.gle/` or `https://docs.google.com/forms/`. Other domains are rejected (HTTP 400).
+
+For a full Google Forms URL, organizers can optionally provide the **name** and **email** prefill field keys (`entry.123456`). Obtain these only from the organizer's actual form using Google Forms' prefilled-link feature; never guess entry IDs. When configured, the frontend appends the authenticated student's name and email to the URL before opening a new tab. Avoid adding personally sensitive data to URLs.
+
+External form responses remain in Google Forms. **Clicking a link is not proof of registration**, and CampusConnect's seat counter does not track external submissions. Event cards display the planned capacity rather than an asserted number of remaining Google Forms seats. Older native CampusConnect registrations are retained for backward compatibility; externally managed events are rejected by the native registration endpoint.
+
+Schema changes use Flyway `V2__event_google_form_metadata.sql`. Existing registration records are untouched. The `V3__optional_club_contact.sql` migration permits nullable club email addresses because public clubs without a verified official contact must not be assigned invented ones.
+
+## IGDTUW public-source dataset
+
+`data/igdtuw_clubs.json` lists **21 publicly documented groups** and `data/igdtuw_events.json` records **3 researched announcements** as of 23 October 2026. `verified` flags refer to evidence for the recorded fields; they do **not** establish current club membership activity. One upcoming event has an unknown end time and is marked unverified. Sources and limitations are recorded in `data/SOURCES.md`.
+
+The `demo` Spring profile loads the copied datasets from `backend/src/main/resources/demo/`. It imports verified clubs and historical events with sufficient scheduling information, skips unknown/unverified event times, and keeps the separately labelled fictional rolling demo events so the UI stays populated. Sourced records and fictional demos must not be represented as confirmed live university announcements.
+
+Public university brochures, public club sites and public LinkedIn pages were used. Instagram profiles or posts that required login could not be independently examined through a connected Chrome session. No private member names, phone numbers, student photos, or fabricated registration forms are included. External event registration links from other ticketing services are not automatically treated as Google Forms.
+
+## Screenshots after redesign
+
+Screenshots are stored under `screenshots/` and represent a particular UI revision. Refresh these manually from the newest running frontend before showcasing the project to recruiters. Use a fictional student account and avoid capturing any real personal details.
