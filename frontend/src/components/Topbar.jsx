@@ -8,6 +8,7 @@ const pages = {
   "/events": ["Events", "Find upcoming activities on campus."],
   "/my-events": ["My Events", "Your event registrations."],
   "/manage-events": ["Manage Events", "Organize and maintain campus events."],
+  "/admin/events": ["University Events", "University-wide event administration."],
   "/profile": ["Profile", "Your student account."],
 };
 
