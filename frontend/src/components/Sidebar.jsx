@@ -8,6 +8,8 @@ import {
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { fetchMyClubs } from "../services/ClubService";
 import { useAuth } from "../context/AuthContext";
 
 const groups = [
@@ -60,7 +62,16 @@ const groups = [
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
-  const canManage = user?.role === "UNIVERSITY_ADMIN" || user?.role === "CLUB_ADMIN" || user?.role === "COORDINATOR";
+  const [isClubManager, setIsClubManager] = useState(false);
+  useEffect(() => {
+    let active = true;
+    if (user?.role === "UNIVERSITY_ADMIN") return undefined;
+    fetchMyClubs().then(memberships => {
+      if (active) setIsClubManager(memberships.some(m => ["COORDINATOR", "ADMIN"].includes(m.membershipRole)));
+    }).catch(() => { if (active) setIsClubManager(false); });
+    return () => { active = false; };
+  }, [user?.id, user?.role]);
+  const canManage = user?.role === "UNIVERSITY_ADMIN" || isClubManager;
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[258px] flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-900 lg:flex">
