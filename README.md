@@ -164,20 +164,16 @@ A full-stack campus community MVP for club membership, event discovery, registra
 CampusConnect
 │
 ├── backend
-│   ├── controller
-│   ├── service
-│   ├── repository
-│   ├── entity
-│   ├── security
-│   └── config
+│   ├── src/main/java/com/campusconnect/
+│   │   ├── controller/ service/ repository/
+│   │   ├── entity/ security/ config/ dto/ exception/
+│   ├── src/main/resources/db/migration/
+│   └── src/test/java/com/campusconnect/
 │
 ├── frontend
-│   ├── components
-│   ├── layouts
-│   ├── pages
-│   ├── services
-│   ├── context
-│   └── assets
+│   ├── src/components/ layouts/ pages/
+│   ├── src/services/ context/ assets/
+│   └── e2e/
 │
 ├── screenshots
 │
@@ -191,7 +187,7 @@ CampusConnect
 ## Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/rishika150/CampusConnect.git
 cd CampusConnect
 ```
 
