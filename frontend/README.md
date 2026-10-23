@@ -1,16 +1,19 @@
-# React + Vite
+# CampusConnect frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite + Tailwind CSS interface for CampusConnect. The project contains public landing/login/registration pages and authenticated dashboard, clubs, events, registrations, profile and authorized event-management pages.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Run `npm ci` then `npm run dev`. By default the app expects the Spring Boot API at `http://localhost:8080/api/v1`. Override with `VITE_API_BASE_URL` for other environments.
 
-## React Compiler
+## Verification
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `npm run lint`: Oxlint.
+- `npm run build`: optimized Vite production build.
+- `npx playwright test`: browser checks after Playwright and Chromium are installed.
 
-## Expanding the Oxlint configuration
+The browser tests in `e2e/app.spec.js` use stubbed responses for targeted failure behavior. The `e2e/live-backend.spec.js` tests additionally need running PostgreSQL and Spring Boot, a bootstrap admin, `E2E_REAL_BACKEND=true`, and a matching `VITE_API_BASE_URL`. See `../.github/workflows/ci.yml` for the exact CI setup. Playwright is currently installed in CI as a non-persisted test dependency; pinning it in both package manifest and lockfile is a separate reproducibility improvement.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Scope
+
+The browser stores a JWT in `localStorage`; authorization is enforced by the backend, not by hiding frontend controls. See the root README for deployment prerequisites and remaining security/acceptance caveats.
