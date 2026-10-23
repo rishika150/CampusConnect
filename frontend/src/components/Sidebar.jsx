@@ -128,7 +128,7 @@ export default function Sidebar() {
             </div>
           </div>
         ))}
-        {canManage && <NavLink to="/manage-events" className={({isActive}) => ["mx-3 mt-2 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold",isActive ? "bg-slate-100 text-[#172B4D]" : "text-slate-600 hover:bg-slate-50"].join(" ")}><Settings2 size={19} />Manage events</NavLink>}
+        {canManage && <NavLink to={user?.role === "UNIVERSITY_ADMIN" ? "/admin/events" : "/manage-events"} className={({isActive}) => ["mx-3 mt-2 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold",isActive ? "bg-slate-100 text-[#172B4D]" : "text-slate-600 hover:bg-slate-50"].join(" ")}><Settings2 size={19} />Manage events</NavLink>}
       </nav>
 
       <div className="border-t border-white/10 p-4">
